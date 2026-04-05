@@ -305,6 +305,24 @@ ListPageSize = 8
 2. **搜索下载**: `/search 周杰伦 晴天`
 3. **获取歌词**: `/lyric https://music.163.com/song?id=12345`
 
+## 网易云批量下载
+
+如果你不想走 Telegram Bot 的分页交互流程，现在仓库里额外提供了一个独立命令：
+
+```bash
+go build -o netease-batch ./cmd/netease-batch
+```
+
+它可以直接批量下载网易云歌单/专辑，并保留封面、专辑、艺术家、歌词等元数据。
+Windows 可直接使用：
+
+```bat
+build_netease_batch_windows.bat
+download_netease_playlist.bat "https://music.163.com/#/playlist?id=19723756" "D:\Music"
+```
+
+详细说明见 `docs/netease-batch.md`。
+
 ## 开发
 
 ### 构建
