@@ -158,6 +158,17 @@ GitHub Release 现在只发布 `netease-batch` 相关产物。
 ## 文档
 
 - 详细说明见 `docs/netease-batch.md`
+- 上游来源与许可证说明见 `UPSTREAM.md`
+
+## 上游来源
+
+这个仓库基于上游项目 `liuran001/MusicBot-Go` 的 GPL-3.0 代码继续修改而来，并已重构为专门的 `netease-batch-downloader` 仓库。
+
+- 上游仓库：`https://github.com/liuran001/MusicBot-Go`
+- 上游许可证：`GPL-3.0`
+- 当前仓库继续以 `GPL-3.0` 分发
+
+上游项目的版权归原作者及其贡献者所有；本仓库对保留下来的相关代码做了裁剪、重命名、中文化、自动化发布和产品定位重构。
 
 ## 许可证
 

@@ -132,3 +132,11 @@ go run ./cmd/netease-batch \
 - 现在的 Windows 向导是 GUI 方式，适合“下载后双击即填表使用”
 - 如果没有手动配置 `cookie` / `music_u`，Windows 下程序会自动尝试从已登录浏览器读取 `music.163.com` Cookie
 - 对 `mp3`、`flac`、`m4a`、`mp4`，封面会尝试直接写进音频标签；外部 `covers/` 图片仍会保留作为源数据备份
+
+## 上游与许可证
+
+这个项目基于 `https://github.com/liuran001/MusicBot-Go` 的 GPL-3.0 代码继续演进，并已整理成只面向网易云批量下载的独立仓库。
+
+- 保留 `LICENSE`
+- 保留完整源代码分发
+- 在仓库中额外提供 `UPSTREAM.md` 说明来源与当前改动方向

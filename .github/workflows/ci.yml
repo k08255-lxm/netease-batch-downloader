@@ -121,7 +121,7 @@ jobs:
             -o "$PACKAGE_DIR/$BINARY_NAME" \
             ./cmd/netease-batch
 
-          cp README.md config_example.ini LICENSE "$PACKAGE_DIR/"
+          cp README.md config_example.ini LICENSE UPSTREAM.md "$PACKAGE_DIR/"
           if [ "$GOOS" = "windows" ]; then
             cp build_netease_batch_windows.bat download_netease_playlist.bat setup_netease_batch_windows.bat setup_netease_batch_windows.ps1 "$PACKAGE_DIR/"
           fi
