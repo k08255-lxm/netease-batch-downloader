@@ -3,6 +3,7 @@ package netease
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/liuran001/MusicBot-Go/bot/config"
@@ -20,10 +21,13 @@ func buildContribution(cfg *config.Config, logger *logpkg.Logger) (*platformplug
 	if cfg == nil {
 		return nil, fmt.Errorf("config required")
 	}
-	musicU := cfg.GetPluginString("netease", "music_u")
+	rawCookie := strings.TrimSpace(strings.Trim(cfg.GetPluginString("netease", "cookie"), "`\"'"))
+	musicU := strings.TrimSpace(strings.Trim(cfg.GetPluginString("netease", "music_u"), "`\"'"))
 	if musicU == "" {
-		musicU = cfg.GetString("MUSIC_U")
+		musicU = strings.TrimSpace(strings.Trim(cfg.GetString("MUSIC_U"), "`\"'"))
 	}
+	browser := strings.TrimSpace(cfg.GetPluginString("netease", "browser"))
+	browserProfile := strings.TrimSpace(cfg.GetPluginString("netease", "browser_profile"))
 	spoofIP := true
 	if pluginCfg, ok := cfg.GetPluginConfig("netease"); ok {
 		if _, exists := pluginCfg["spoof_ip"]; exists {
@@ -39,7 +43,30 @@ func buildContribution(cfg *config.Config, logger *logpkg.Logger) (*platformplug
 	persist := func(pairs map[string]string) error {
 		return cfg.PersistPluginConfig("netease", pairs)
 	}
-	client := New(musicU, spoofIP, logger, persist)
+	client := New("", spoofIP, nil, persist)
+	client.logger = logger
+	switch {
+	case rawCookie != "":
+		if err := client.LoadCookieString(rawCookie); err != nil {
+			return nil, fmt.Errorf("load netease cookie from config: %w", err)
+		}
+	case musicU != "":
+		client = New(musicU, spoofIP, logger, persist)
+	default:
+		result, err := ReadBrowserCookie(browser, browserProfile)
+		if err != nil {
+			if browser != "" && !strings.EqualFold(browser, "auto") {
+				return nil, fmt.Errorf("load netease cookie from browser: %w", err)
+			}
+		} else {
+			if err := client.LoadCookieString(result.Cookie); err != nil {
+				return nil, fmt.Errorf("load netease cookie from %s/%s: %w", result.Browser, result.Profile, err)
+			}
+			if logger != nil {
+				logger.Info("loaded netease cookie from browser", "browser", result.Browser, "profile", result.Profile)
+			}
+		}
+	}
 	client.ConfigureAutoRenew(autoRenewEnabled, interval)
 	client.StartAutoRenewDaemon(context.Background())
 	if err := client.SetAPIProxy(cfg.ResolveAPIProxyConfig("netease")); err != nil {

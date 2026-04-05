@@ -136,10 +136,26 @@ func (c *Client) CookieMap() map[string]string {
 	return result
 }
 
+func (c *Client) LoadCookieString(raw string) error {
+	cookies, err := parseCookieString(raw)
+	if err != nil {
+		return err
+	}
+	return c.applyCookieObjects(cookies, false)
+}
+
 func (c *Client) SetCookieString(raw string) error {
+	cookies, err := parseCookieString(raw)
+	if err != nil {
+		return err
+	}
+	return c.applyCookieObjects(cookies, true)
+}
+
+func parseCookieString(raw string) ([]*http.Cookie, error) {
 	raw = strings.TrimSpace(strings.Trim(raw, "`\"'"))
 	if raw == "" {
-		return fmt.Errorf("cookie empty")
+		return nil, fmt.Errorf("cookie empty")
 	}
 	parts := strings.Split(raw, ";")
 	cookies := make([]*http.Cookie, 0, len(parts))
@@ -156,14 +172,30 @@ func (c *Client) SetCookieString(raw string) error {
 		cookies = append(cookies, &http.Cookie{Name: name, Value: value})
 	}
 	if len(cookies) == 0 {
-		return fmt.Errorf("no valid cookies found")
+		return nil, fmt.Errorf("no valid cookies found")
 	}
-	return c.SetCookieObjects(cookies)
+	return cookies, nil
+}
+
+func (c *Client) LoadCookieMap(cookieMap map[string]string) error {
+	cookies, err := cookieObjectsFromMap(cookieMap)
+	if err != nil {
+		return err
+	}
+	return c.applyCookieObjects(cookies, false)
 }
 
 func (c *Client) SetCookieMap(cookieMap map[string]string) error {
+	cookies, err := cookieObjectsFromMap(cookieMap)
+	if err != nil {
+		return err
+	}
+	return c.applyCookieObjects(cookies, true)
+}
+
+func cookieObjectsFromMap(cookieMap map[string]string) ([]*http.Cookie, error) {
 	if len(cookieMap) == 0 {
-		return fmt.Errorf("cookie empty")
+		return nil, fmt.Errorf("cookie empty")
 	}
 	cookies := make([]*http.Cookie, 0, len(cookieMap))
 	for key, value := range cookieMap {
@@ -175,17 +207,21 @@ func (c *Client) SetCookieMap(cookieMap map[string]string) error {
 		cookies = append(cookies, &http.Cookie{Name: key, Value: value})
 	}
 	if len(cookies) == 0 {
-		return fmt.Errorf("no valid cookies found")
+		return nil, fmt.Errorf("no valid cookies found")
 	}
-	return c.SetCookieObjects(cookies)
+	return cookies, nil
 }
 
 func (c *Client) SetCookieObjects(cookies []*http.Cookie) error {
+	return c.applyCookieObjects(cookies, true)
+}
+
+func (c *Client) applyCookieObjects(cookies []*http.Cookie, persist bool) error {
 	if len(cookies) == 0 {
 		return fmt.Errorf("cookie empty")
 	}
 	c.baseData.Cookies = cookies
-	if c.persistFunc != nil {
+	if persist && c.persistFunc != nil {
 		musicU := ""
 		for _, cookie := range cookies {
 			if cookie != nil && strings.EqualFold(strings.TrimSpace(cookie.Name), "MUSIC_U") {

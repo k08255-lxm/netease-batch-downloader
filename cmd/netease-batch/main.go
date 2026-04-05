@@ -23,7 +23,10 @@ import (
 )
 
 type appConfig struct {
+	Cookie               string
 	MusicU               string
+	Browser              string
+	BrowserProfile       string
 	SpoofIP              bool
 	DownloadTimeout      time.Duration
 	DownloadProxy        string
@@ -120,7 +123,7 @@ func main() {
 		checkOnly   bool
 	)
 
-	flag.StringVar(&configPath, "config", "config.ini", "配置文件路径，会读取 [plugins.netease] music_u")
+	flag.StringVar(&configPath, "config", "config.ini", "配置文件路径，会读取 [plugins.netease] cookie / music_u")
 	flag.StringVar(&rawURL, "url", "", "网易云歌单或专辑 URL")
 	flag.StringVar(&outDir, "out", "downloads", "输出根目录")
 	flag.StringVar(&musicU, "music-u", "", "直接指定网易云 MUSIC_U，优先级高于配置文件")
@@ -150,10 +153,17 @@ func main() {
 		os.Exit(1)
 	}
 	if trimmed := strings.TrimSpace(musicU); trimmed != "" {
+		cfg.Cookie = ""
 		cfg.MusicU = trimmed
 	}
-	if strings.TrimSpace(cfg.MusicU) == "" {
-		fmt.Fprintln(os.Stderr, "未找到网易云 MUSIC_U，请在 config.ini 的 [plugins.netease] music_u 填入，或使用 -music-u")
+	if strings.TrimSpace(cfg.Cookie) == "" && strings.TrimSpace(cfg.MusicU) == "" {
+		if result, err := netease.ReadBrowserCookie(cfg.Browser, cfg.BrowserProfile); err == nil {
+			cfg.Cookie = result.Cookie
+			fmt.Fprintf(os.Stderr, "已从浏览器读取网易云 Cookie: %s (%s)\n", result.Browser, result.Profile)
+		}
+	}
+	if strings.TrimSpace(cfg.Cookie) == "" && strings.TrimSpace(cfg.MusicU) == "" {
+		fmt.Fprintln(os.Stderr, "未找到网易云 Cookie：请在 config.ini 的 [plugins.netease] 配置 cookie/music_u，使用 -music-u，或在 Windows 下让程序自动从浏览器读取")
 		os.Exit(1)
 	}
 	if concurrency <= 0 {
@@ -163,7 +173,19 @@ func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
 
-	client := netease.New(cfg.MusicU, cfg.SpoofIP, nil)
+	client := netease.New("", cfg.SpoofIP, nil)
+	switch {
+	case strings.TrimSpace(cfg.Cookie) != "":
+		if err := client.LoadCookieString(cfg.Cookie); err != nil {
+			fmt.Fprintf(os.Stderr, "加载网易云 Cookie 失败: %v\n", err)
+			os.Exit(1)
+		}
+	case strings.TrimSpace(cfg.MusicU) != "":
+		if err := client.LoadCookieMap(map[string]string{"MUSIC_U": cfg.MusicU}); err != nil {
+			fmt.Fprintf(os.Stderr, "加载网易云 MUSIC_U 失败: %v\n", err)
+			os.Exit(1)
+		}
+	}
 	plat := netease.NewPlatform(client, false)
 
 	if checkOnly {
@@ -551,12 +573,17 @@ func loadConfig(path string) (appConfig, error) {
 	root := file.Section("")
 	neteaseSection := file.Section("plugins.netease")
 
-	if value := strings.TrimSpace(neteaseSection.Key("music_u").String()); value != "" {
+	if value := normalizeConfigCookieValue(neteaseSection.Key("cookie").String()); value != "" {
+		cfg.Cookie = value
+	}
+	if value := normalizeConfigCookieValue(neteaseSection.Key("music_u").String()); value != "" {
 		cfg.MusicU = value
 	}
 	if cfg.MusicU == "" {
-		cfg.MusicU = strings.TrimSpace(root.Key("MUSIC_U").String())
+		cfg.MusicU = normalizeConfigCookieValue(root.Key("MUSIC_U").String())
 	}
+	cfg.Browser = strings.TrimSpace(neteaseSection.Key("browser").String())
+	cfg.BrowserProfile = strings.TrimSpace(neteaseSection.Key("browser_profile").String())
 	if neteaseSection.HasKey("spoof_ip") {
 		cfg.SpoofIP = neteaseSection.Key("spoof_ip").MustBool(cfg.SpoofIP)
 	}
@@ -587,6 +614,10 @@ func loadConfig(path string) (appConfig, error) {
 	cfg.DownloadProxy = strings.TrimSpace(root.Key("DownloadProxy").String())
 
 	return cfg, nil
+}
+
+func normalizeConfigCookieValue(value string) string {
+	return strings.TrimSpace(strings.Trim(value, "`\"'"))
 }
 
 func downloadTrack(ctx context.Context, downloader *download.DownloadService, info *platform.DownloadInfo, audioPath string) error {

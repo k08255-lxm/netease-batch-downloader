@@ -45,6 +45,7 @@ setup_netease_batch_windows.bat
 - 创建 `config.ini`
 - 打开网易云登录页
 - 支持粘贴 `MUSIC_U`
+- 在未手动配置 Cookie 时自动尝试从浏览器读取 `music.163.com` 登录态
 - 支持粘贴整段 `Cookie:` 文本并自动提取 `MUSIC_U`
 - 支持导入用户自己导出的 `cookie.txt`
 - 内置 `How To Get Cookie` 按钮，直接弹窗教用户怎么拿
@@ -98,6 +99,7 @@ go run ./cmd/netease-batch \
 
 - `-config`：配置文件路径，默认 `config.ini`
 - `-music-u`：直接传入 `MUSIC_U`，优先级高于配置文件
+- 如果配置里没有 `cookie` / `music_u`，Windows 下会自动尝试读取 `Edge` / `Chrome` / `Brave` / `Firefox`
 - `-url`：歌单或专辑 URL
 - `-out`：输出根目录
 - `-quality`：`standard` / `high` / `lossless` / `hires`
@@ -114,5 +116,5 @@ go run ./cmd/netease-batch \
 - 如果文件已存在，默认跳过，不会重复下载
 - Windows 首次使用建议直接运行 `setup_netease_batch_windows.bat`
 - 现在的 Windows 向导是 GUI 方式，适合“下载后双击即填表使用”
-- GUI 不会直接扫描本机浏览器 Cookie 数据库；如果你不想手动找单个值，可以直接导入你自己导出的 Cookie 文本或 `cookie.txt`
+- 如果没有手动配置 `cookie` / `music_u`，Windows 下程序会自动尝试从已登录浏览器读取 `music.163.com` Cookie
 - 对 `mp3`、`flac`、`m4a`、`mp4`，封面会尝试直接写进音频标签；外部 `covers/` 图片仍会保留作为源数据备份

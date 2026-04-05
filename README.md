@@ -38,13 +38,13 @@ Release 下载：
 2. 解压
 3. 双击 `setup_netease_batch_windows.bat`
 4. 在窗口里：
-   - 导入或粘贴 `MUSIC_U`
+   - 直接粘贴 `MUSIC_U`，或留空让程序自动从浏览器读取
    - 粘贴歌单链接
    - 选择输出目录
    - 点击 `Check Cookie`
    - 点击 `Start Download`
 
-不会找 `MUSIC_U` 的话，GUI 里现在有 `How To Get Cookie` 按钮，会直接弹出步骤。
+Windows 下如果配置里没有手动填写 `cookie` / `music_u`，程序会自动尝试从已登录的 `Edge`、`Chrome`、`Brave`、`Firefox` 读取 `music.163.com` 的 Cookie。
 
 ## Windows GUI
 
@@ -57,6 +57,7 @@ setup_netease_batch_windows.bat
 图形界面支持：
 
 - 手动粘贴 `MUSIC_U`
+- `MUSIC_U` 留空时运行时自动尝试读取浏览器 Cookie
 - 从剪贴板导入 `MUSIC_U` 或整段 `Cookie:` 文本
 - 导入用户自己导出的 `cookie.txt`
 - 内置 `How To Get Cookie` 按钮，直接显示获取步骤
@@ -88,6 +89,7 @@ go run ./cmd/netease-batch \
 
 - `-config`：配置文件路径，默认 `config.ini`
 - `-music-u`：直接传入 `MUSIC_U`
+- 未显式提供 `cookie`/`music_u` 时，Windows 下会自动尝试从浏览器读取
 - `-url`：歌单或专辑 URL
 - `-out`：输出根目录
 - `-quality`：`standard` / `high` / `lossless` / `hires`
@@ -118,10 +120,10 @@ go run ./cmd/netease-batch \
 为了尽量减少操作，GUI 现在支持：
 
 - 直接粘贴 `MUSIC_U`
+- Windows 下在未手动配置 Cookie 时自动读取浏览器中的 `music.163.com` 登录态
 - 直接粘贴浏览器里复制出来的整段 `Cookie:` 文本
 - 导入用户自己导出的 `cookie.txt`
-
-不提供对本机浏览器 Cookie 库的直接抓取。
+- 也可以在 `[plugins.netease]` 中直接配置整段 `cookie`
 
 ## 封面说明
 
