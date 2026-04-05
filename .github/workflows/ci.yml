@@ -1,4 +1,4 @@
-name: CI
+name: Build And Release
 
 on:
   push:
@@ -30,15 +30,8 @@ jobs:
       - name: Download modules
         run: go mod download
 
-      - name: Run targeted tests
-        run: |
-          go test ./cmd/netease-batch \
-            ./plugins/netease \
-            ./bot/download \
-            ./bot/id3 \
-            ./bot/platform \
-            ./bot/httpproxy \
-            ./bot/util
+      - name: Run tests
+        run: go test ./...
 
   build:
     runs-on: ubuntu-latest

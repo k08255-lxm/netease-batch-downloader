@@ -164,7 +164,7 @@ func (s *DownloadService) Download(ctx context.Context, info *platform.DownloadI
 	defer s.releaseInflight(key, call)
 
 	if leader {
-		tmpFile, err := os.CreateTemp("", "musicbot-download-*")
+		tmpFile, err := os.CreateTemp("", "netease-batch-download-*")
 		if err != nil {
 			call.err = err
 			s.inflightMu.Lock()

@@ -28,7 +28,7 @@ type Config struct {
 // Load reads an INI config file and prepares defaults.
 func Load(path string) (*Config, error) {
 	v := viper.New()
-	v.SetEnvPrefix("MUSIC163BOT")
+	v.SetEnvPrefix("NETEASE_BATCH")
 	v.AutomaticEnv()
 
 	setDefaults(v)
@@ -311,27 +311,8 @@ func (c *Config) Validate() error {
 		return fmt.Errorf("config is nil")
 	}
 
-	if strings.TrimSpace(c.GetString("BOT_TOKEN")) == "" {
-		return fmt.Errorf("bot token is required")
-	}
-	if strings.TrimSpace(c.GetString("DefaultPlatform")) == "" {
-		return fmt.Errorf("default platform cannot be empty")
-	}
-	if strings.TrimSpace(c.GetString("SearchFallbackPlatform")) == "" {
-		return fmt.Errorf("search fallback platform cannot be empty")
-	}
-	if strings.TrimSpace(c.GetString("DefaultQuality")) == "" {
-		return fmt.Errorf("default quality cannot be empty")
-	}
-
 	mustPositive := map[string]int{
-		"DownloadTimeout":    c.GetInt("DownloadTimeout"),
-		"ListPageSize":       c.GetInt("ListPageSize"),
-		"InlineListPageSize": c.GetInt("InlineListPageSize"),
-		"WorkerPoolSize":     c.GetInt("WorkerPoolSize"),
-		"RateLimitBurst":     c.GetInt("RateLimitBurst"),
-		"UploadWorkerCount":  c.GetInt("UploadWorkerCount"),
-		"UploadQueueSize":    c.GetInt("UploadQueueSize"),
+		"DownloadTimeout": c.GetInt("DownloadTimeout"),
 	}
 	for k, v := range mustPositive {
 		if v <= 0 {
@@ -340,15 +321,9 @@ func (c *Config) Validate() error {
 	}
 
 	mustNonNegative := map[string]int{
-		"DBMaxOpenConns":         c.GetInt("DBMaxOpenConns"),
-		"DBMaxIdleConns":         c.GetInt("DBMaxIdleConns"),
-		"DBConnMaxLifetimeSec":   c.GetInt("DBConnMaxLifetimeSec"),
-		"MultipartMinSizeMB":     c.GetInt("MultipartMinSizeMB"),
-		"GlobalRateLimitBurst":   c.GetInt("GlobalRateLimitBurst"),
-		"DownloadConcurrency":    c.GetInt("DownloadConcurrency"),
-		"DownloadMaxRetries":     c.GetInt("DownloadMaxRetries"),
-		"DownloadQueueWaitLimit": c.GetInt("DownloadQueueWaitLimit"),
-		"UploadConcurrency":      c.GetInt("UploadConcurrency"),
+		"MultipartMinSizeMB":  c.GetInt("MultipartMinSizeMB"),
+		"DownloadConcurrency": c.GetInt("DownloadConcurrency"),
+		"DownloadMaxRetries":  c.GetInt("DownloadMaxRetries"),
 	}
 	for k, v := range mustNonNegative {
 		if v < 0 {
@@ -358,15 +333,6 @@ func (c *Config) Validate() error {
 
 	if c.GetBool("EnableMultipartDownload") && c.GetInt("MultipartConcurrency") <= 0 {
 		return fmt.Errorf("multipart concurrency must be greater than 0 when multipart download is enabled")
-	}
-
-	ratePerSecond := c.GetFloat64("RateLimitPerSecond")
-	if ratePerSecond <= 0 {
-		return fmt.Errorf("rate limit per second must be greater than 0")
-	}
-	globalRatePerSecond := c.GetFloat64("GlobalRateLimitPerSecond")
-	if globalRatePerSecond < 0 {
-		return fmt.Errorf("global rate limit per second must be non-negative")
 	}
 
 	port := c.GetInt("RecognizePort")
@@ -381,48 +347,25 @@ func (c *Config) Validate() error {
 }
 
 func setDefaults(v *viper.Viper) {
-	v.SetDefault("BotAPI", "https://api.telegram.org")
-	v.SetDefault("BotDebug", false)
 	v.SetDefault("CacheDir", "./cache")
-	v.SetDefault("DownloadTimeout", 60)
-	v.SetDefault("CheckMD5", true)
-	v.SetDefault("Database", "cache.db")
-	v.SetDefault("DataDatabase", "data.db")
-	v.SetDefault("DBMaxOpenConns", 1)
-	v.SetDefault("DBMaxIdleConns", 1)
-	v.SetDefault("DBConnMaxLifetimeSec", 3600)
 	v.SetDefault("LogLevel", "info")
 	v.SetDefault("LogFormat", "text")
 	v.SetDefault("LogSource", false)
-	v.SetDefault("GormLogLevel", "warn")
-	v.SetDefault("DefaultPlatform", "netease")
-	v.SetDefault("SearchFallbackPlatform", "netease")
-	v.SetDefault("DefaultQuality", "hires")
+	v.SetDefault("DownloadTimeout", 60)
+	v.SetDefault("CheckMD5", true)
 	v.SetDefault("EnableMultipartDownload", true)
 	v.SetDefault("MultipartConcurrency", 4)
 	v.SetDefault("MultipartMinSizeMB", 5)
-	v.SetDefault("ListPageSize", 8)
-	v.SetDefault("InlineListPageSize", 30)
-	v.SetDefault("WorkerPoolSize", 4)
-	v.SetDefault("EnableRecognize", true)
-	v.SetDefault("EnableWhitelist", false)
-	v.SetDefault("WhitelistChatIDs", "")
-	v.SetDefault("RecognizePort", 3737)
-	v.SetDefault("RateLimitPerSecond", 1.0)
-	v.SetDefault("RateLimitBurst", 3)
-	v.SetDefault("GlobalRateLimitPerSecond", 0.0)
-	v.SetDefault("GlobalRateLimitBurst", 0)
 	v.SetDefault("DownloadConcurrency", 4)
 	v.SetDefault("DownloadMaxRetries", 3)
-	v.SetDefault("DownloadQueueWaitLimit", 0)
-	v.SetDefault("UploadConcurrency", 1)
-	v.SetDefault("UploadWorkerCount", 1)
-	v.SetDefault("UploadQueueSize", 20)
-	v.SetDefault("InlineUploadChatID", 0)
-	v.SetDefault("EnableAprilFools", false)
-	v.SetDefault("AprilFoolsTextPrankProbability", 0.01)
-	v.SetDefault("AprilFoolsTrackHijackProbability", 0.15)
-	v.SetDefault("PluginScriptDir", "./plugins/scripts")
+	v.SetDefault("EnableRecognize", true)
+	v.SetDefault("RecognizePort", 3737)
+	v.SetDefault("ApiProxyEnabled", false)
+	v.SetDefault("ApiProxyType", "http")
+	v.SetDefault("ApiProxyHost", "")
+	v.SetDefault("ApiProxyPort", 0)
+	v.SetDefault("ApiProxyAuth", "")
+	v.SetDefault("ApiProxyHeaders", "")
 }
 
 // GetString returns a string value.

@@ -13,12 +13,12 @@ func TestLoadINI(t *testing.T) {
 		t.Fatalf("load config: %v", err)
 	}
 
-	if conf.GetString("BOT_TOKEN") == "" {
-		t.Fatalf("expected BOT_TOKEN to be present")
+	if conf.GetInt("DownloadTimeout") != 60 {
+		t.Fatalf("expected default DownloadTimeout=60, got %d", conf.GetInt("DownloadTimeout"))
 	}
 
-	if conf.GetString("BotAPI") == "" {
-		t.Fatalf("expected BotAPI to be present")
+	if !conf.GetBool("CheckMD5") {
+		t.Fatalf("expected CheckMD5 default to be true")
 	}
 }
 
@@ -29,17 +29,15 @@ func TestPluginSections(t *testing.T) {
 	}
 	defer os.Remove(tmpFile.Name())
 
-	configContent := `BOT_TOKEN = test_token
-MUSIC_U = test_music_u
+	configContent := `MUSIC_U = test_music_u
 
 [plugins.netease]
 api_url = https://netease.api
 retry = 3
 feature_enabled = true
 
-[plugins.spotify]
-client_id = spotify_client
-client_secret = spotify_secret
+[plugins.custom]
+client_id = custom_client
 feature_enabled = false
 `
 
@@ -53,8 +51,8 @@ feature_enabled = false
 		t.Fatalf("load config: %v", err)
 	}
 
-	if conf.GetString("BOT_TOKEN") != "test_token" {
-		t.Errorf("expected BOT_TOKEN=test_token, got %s", conf.GetString("BOT_TOKEN"))
+	if conf.GetString("MUSIC_U") != "test_music_u" {
+		t.Errorf("expected MUSIC_U=test_music_u, got %s", conf.GetString("MUSIC_U"))
 	}
 
 	neteaseCfg, ok := conf.GetPluginConfig("netease")
@@ -78,12 +76,12 @@ feature_enabled = false
 		t.Errorf("GetPluginBool failed for netease.feature_enabled")
 	}
 
-	if conf.GetPluginBool("spotify", "feature_enabled") {
-		t.Errorf("GetPluginBool should return false for spotify.feature_enabled")
+	if conf.GetPluginBool("custom", "feature_enabled") {
+		t.Errorf("GetPluginBool should return false for custom.feature_enabled")
 	}
 
-	if conf.GetPluginString("spotify", "client_id") != "spotify_client" {
-		t.Errorf("GetPluginString failed for spotify.client_id")
+	if conf.GetPluginString("custom", "client_id") != "custom_client" {
+		t.Errorf("GetPluginString failed for custom.client_id")
 	}
 }
 
@@ -94,7 +92,7 @@ func TestPluginConfigNotFound(t *testing.T) {
 	}
 	defer os.Remove(tmpFile.Name())
 
-	configContent := `BOT_TOKEN = test_token`
+	configContent := `MUSIC_U = test_music_u`
 
 	if _, err := tmpFile.WriteString(configContent); err != nil {
 		t.Fatalf("write config: %v", err)
@@ -131,12 +129,7 @@ func TestBackwardCompatibility(t *testing.T) {
 	}
 	defer os.Remove(tmpFile.Name())
 
-	configContent := `BOT_TOKEN = legacy_token
-MUSIC_U = legacy_music_u
-BotAPI = https://api.telegram.org
-BotDebug = true
-Database = test.db
-LogLevel = debug
+	configContent := `MUSIC_U = legacy_music_u
 DownloadTimeout = 120
 DownloadProxy = proxy.example.com
 CheckMD5 = false
@@ -152,16 +145,8 @@ CheckMD5 = false
 		t.Fatalf("load config: %v", err)
 	}
 
-	if conf.GetString("BOT_TOKEN") != "legacy_token" {
-		t.Errorf("backward compatibility broken for BOT_TOKEN")
-	}
-
 	if conf.GetString("MUSIC_U") != "legacy_music_u" {
 		t.Errorf("backward compatibility broken for MUSIC_U")
-	}
-
-	if conf.GetBool("BotDebug") != true {
-		t.Errorf("backward compatibility broken for BotDebug")
 	}
 
 	if conf.GetInt("DownloadTimeout") != 120 {
@@ -180,8 +165,7 @@ func TestMixedFormat(t *testing.T) {
 	}
 	defer os.Remove(tmpFile.Name())
 
-	configContent := `BOT_TOKEN = mixed_token
-MUSIC_U = mixed_music_u
+	configContent := `MUSIC_U = mixed_music_u
 
 [plugins.custom]
 feature_x = enabled
@@ -198,7 +182,7 @@ priority = 10
 		t.Fatalf("load config: %v", err)
 	}
 
-	if conf.GetString("BOT_TOKEN") != "mixed_token" {
+	if conf.GetString("MUSIC_U") != "mixed_music_u" {
 		t.Errorf("flat key access failed in mixed format")
 	}
 
@@ -211,7 +195,7 @@ priority = 10
 	}
 }
 
-func TestValidateMissingToken(t *testing.T) {
+func TestValidateAllowsDownloaderOnlyConfig(t *testing.T) {
 	tmpFile, err := os.CreateTemp("", "test_config_invalid_*.ini")
 	if err != nil {
 		t.Fatalf("create temp file: %v", err)
@@ -224,21 +208,20 @@ func TestValidateMissingToken(t *testing.T) {
 	}
 	tmpFile.Close()
 
-	_, err = Load(tmpFile.Name())
-	if err == nil {
-		t.Fatal("expected load to fail when BOT_TOKEN is missing")
+	if _, err = Load(tmpFile.Name()); err != nil {
+		t.Fatalf("expected downloader-only config to load, got: %v", err)
 	}
 }
 
-func TestValidateInvalidQueueSize(t *testing.T) {
+func TestValidateInvalidMultipartConcurrency(t *testing.T) {
 	tmpFile, err := os.CreateTemp("", "test_config_invalid_*.ini")
 	if err != nil {
 		t.Fatalf("create temp file: %v", err)
 	}
 	defer os.Remove(tmpFile.Name())
 
-	configContent := `BOT_TOKEN = test_token
-UploadQueueSize = 0
+	configContent := `EnableMultipartDownload = true
+MultipartConcurrency = 0
 `
 	if _, err := tmpFile.WriteString(configContent); err != nil {
 		t.Fatalf("write config: %v", err)
@@ -247,7 +230,7 @@ UploadQueueSize = 0
 
 	_, err = Load(tmpFile.Name())
 	if err == nil {
-		t.Fatal("expected load to fail when UploadQueueSize <= 0")
+		t.Fatal("expected load to fail when MultipartConcurrency <= 0")
 	}
 }
 
@@ -258,8 +241,7 @@ func TestValidateRecognizeDisabledAllowsZeroPort(t *testing.T) {
 	}
 	defer os.Remove(tmpFile.Name())
 
-	configContent := `BOT_TOKEN = test_token
-EnableRecognize = false
+	configContent := `EnableRecognize = false
 RecognizePort = 0
 `
 	if _, err := tmpFile.WriteString(configContent); err != nil {
@@ -279,8 +261,7 @@ func TestValidateRecognizeEnabledRejectsZeroPort(t *testing.T) {
 	}
 	defer os.Remove(tmpFile.Name())
 
-	configContent := `BOT_TOKEN = test_token
-EnableRecognize = true
+	configContent := `EnableRecognize = true
 RecognizePort = 0
 `
 	if _, err := tmpFile.WriteString(configContent); err != nil {

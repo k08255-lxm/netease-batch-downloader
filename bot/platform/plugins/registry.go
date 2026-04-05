@@ -5,8 +5,6 @@ import (
 	"sort"
 	"sync"
 
-	"github.com/k08255-lxm/netease-batch-downloader/bot"
-	"github.com/k08255-lxm/netease-batch-downloader/bot/admincmd"
 	"github.com/k08255-lxm/netease-batch-downloader/bot/config"
 	"github.com/k08255-lxm/netease-batch-downloader/bot/id3"
 	logpkg "github.com/k08255-lxm/netease-batch-downloader/bot/logger"
@@ -16,12 +14,10 @@ import (
 
 // Contribution describes the components a plugin can provide.
 type Contribution struct {
-	Platform           platform.Platform
-	Platforms          []platform.Platform
-	ID3                id3.ID3TagProvider
-	Recognizer         recognize.Service
-	Commands           []admincmd.Command
-	SettingDefinitions []bot.PluginSettingDefinition
+	Platform   platform.Platform
+	Platforms  []platform.Platform
+	ID3        id3.ID3TagProvider
+	Recognizer recognize.Service
 }
 
 // Factory creates a plugin contribution based on config and logger.

@@ -4,6 +4,8 @@ Windows 友好的网易云歌单/专辑批量下载器。
 
 目标很直接：让用户下载压缩包后，双击打开窗口，填最少的信息就能批量下载，并尽量保留完整元数据。
 
+这个仓库现在只保留 `netease-batch-downloader` 本身需要的代码、脚本和自动化流程，不再混放历史遗留的其它产品代码或发布链路。
+
 仓库地址：
 
 - GitHub: `https://github.com/k08255-lxm/netease-batch-downloader`
@@ -31,6 +33,15 @@ Release 下载：
   - 每首歌旁边的 `*.json`
   - 每首歌旁边的 `*.lrc`
   - `covers/` 里的封面文件
+
+## 仓库结构
+
+- `cmd/netease-batch`：命令行主程序
+- `plugins/netease`：网易云接口、Cookie、URL 解析、识曲适配
+- `bot/download`：下载执行与并发控制
+- `bot/id3`：封面、歌词、元数据写入
+- `bot/platform`：下载器内部通用类型
+- `.github/workflows/ci.yml`：测试、打包、发布 `netease-batch`
 
 ## 最短使用流程
 
@@ -87,7 +98,7 @@ go run ./cmd/netease-batch \
 
 ## Release 产物
 
-GitHub Release 现在只发布 `netease-batch` 相关产物，不再附带历史遗留的通用 bot 产物。
+GitHub Release 现在只发布 `netease-batch` 相关产物。
 
 当前发布命名：
 

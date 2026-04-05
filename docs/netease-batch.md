@@ -8,7 +8,7 @@
 go build -o netease-batch ./cmd/netease-batch
 ```
 
-它专门用来批量下载网易云歌单/专辑，不再承担 Telegram Bot、Docker 镜像或多平台音乐聚合发布职责。
+仓库中只保留这个下载器本身需要的代码、脚本和 GitHub 自动化流程。
 
 ## 能力
 
@@ -119,7 +119,9 @@ go run ./cmd/netease-batch \
 - `netease-batch-darwin-amd64-vX.Y.Z.tar.gz`
 - `netease-batch-darwin-arm64-vX.Y.Z.tar.gz`
 
-打 tag 后会自动创建或更新 GitHub Release，不再发布历史遗留的 `musicbot-go` 产物。
+打 tag 后会自动创建或更新 GitHub Release。
+
+主分支每次提交也会自动跑完整测试，后续不需要再靠本地手工打包验证。
 
 ## 说明
 

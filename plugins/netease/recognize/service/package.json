@@ -1,5 +1,5 @@
 {
-  "name": "musicbot-recognize-service",
+  "name": "netease-batch-recognize-service",
   "version": "1.0.0",
   "type": "module",
   "description": "Local audio recognition service for netease-batch-downloader",

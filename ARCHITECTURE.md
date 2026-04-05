@@ -15,7 +15,7 @@
 - 写入元数据、封面、歌词
 - 导出 `playlist.json` 和每首歌的 sidecar 文件
 
-仓库中仍保留了一些共享目录，例如 `bot/download`、`bot/id3`、`bot/platform`、`plugins/netease`。这些目录现在只是下载器内部复用代码，不再表示一个对外产品矩阵。
+仓库中保留的 `bot/*` 目录只是下载器内部复用库，名称来自历史代码演进，不再代表一个对外 Bot 产品。
 
 ## 目录结构
 
@@ -82,4 +82,4 @@ GitHub Actions 只构建并发布 `netease-batch` 相关产物：
 - `netease-batch-darwin-amd64-vX.Y.Z.tar.gz`
 - `netease-batch-darwin-arm64-vX.Y.Z.tar.gz`
 
-Release 不再发布 `musicbot-go`、Docker 镜像或 Telegram Bot 相关产物。
+推送 tag 后，GitHub 会自动测试、打包并更新 Release。
