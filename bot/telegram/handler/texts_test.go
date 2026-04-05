@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/liuran001/MusicBot-Go/bot/admincmd"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/admincmd"
 )
 
 func TestBuildHelpTextIncludesAccountCommandsForAdmin(t *testing.T) {

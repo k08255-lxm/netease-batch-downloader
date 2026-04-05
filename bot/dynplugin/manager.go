@@ -7,10 +7,10 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/liuran001/MusicBot-Go/bot/config"
-	logpkg "github.com/liuran001/MusicBot-Go/bot/logger"
-	"github.com/liuran001/MusicBot-Go/bot/platform"
-	platformplugins "github.com/liuran001/MusicBot-Go/bot/platform/plugins"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/config"
+	logpkg "github.com/k08255-lxm/netease-batch-downloader/bot/logger"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/platform"
+	platformplugins "github.com/k08255-lxm/netease-batch-downloader/bot/platform/plugins"
 )
 
 type Manager struct {

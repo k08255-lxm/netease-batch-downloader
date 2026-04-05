@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	botpkg "github.com/liuran001/MusicBot-Go/bot"
-	"github.com/liuran001/MusicBot-Go/bot/platform"
+	botpkg "github.com/k08255-lxm/netease-batch-downloader/bot"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/platform"
 	"github.com/mymmrac/telego"
 )
 

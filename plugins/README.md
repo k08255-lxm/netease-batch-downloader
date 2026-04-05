@@ -1,11 +1,11 @@
 # 插件开发指南
 
-本指南帮助第三方开发者为 MusicBot-Go 开发新的音乐平台插件。
+本指南帮助第三方开发者为 netease-batch-downloader 开发新的音乐平台插件。
 如果你希望编写动态脚本插件，请参考 `plugins/scripts/README.md`。
 
 ## 概述
 
-MusicBot-Go 使用基于接口的插件系统，允许轻松扩展对不同音乐平台的支持。
+netease-batch-downloader 使用基于接口的插件系统，允许轻松扩展对不同音乐平台的支持。
 
 ### 插件系统架构
 
@@ -72,7 +72,7 @@ import (
     "context"
     "io"
 
-    "github.com/liuran001/MusicBot-Go/bot/platform"
+    "github.com/k08255-lxm/netease-batch-downloader/bot/platform"
 )
 
 type SpotifyPlatform struct{}
@@ -217,7 +217,7 @@ import (
     "io"
     "fmt"
     
-    "github.com/liuran001/MusicBot-Go/bot/platform"
+    "github.com/k08255-lxm/netease-batch-downloader/bot/platform"
     "github.com/zmb3/spotify/v2"
 )
 
@@ -440,9 +440,9 @@ func TestURLMatcher(t *testing.T) {
 package spotify
 
 import (
-    "github.com/liuran001/MusicBot-Go/bot/config"
-    logpkg "github.com/liuran001/MusicBot-Go/bot/logger"
-    platformplugins "github.com/liuran001/MusicBot-Go/bot/platform/plugins"
+    "github.com/k08255-lxm/netease-batch-downloader/bot/config"
+    logpkg "github.com/k08255-lxm/netease-batch-downloader/bot/logger"
+    platformplugins "github.com/k08255-lxm/netease-batch-downloader/bot/platform/plugins"
 )
 
 func init() {
@@ -465,7 +465,7 @@ func buildContribution(cfg *config.Config, logger *logpkg.Logger) (*platformplug
 package all
 
 import (
-    _ "github.com/liuran001/MusicBot-Go/plugins/spotify"
+    _ "github.com/k08255-lxm/netease-batch-downloader/plugins/spotify"
 )
 ```
 

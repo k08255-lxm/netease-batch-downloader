@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/liuran001/MusicBot-Go/bot/dynplugin"
-	"github.com/liuran001/MusicBot-Go/bot/telegram"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/dynplugin"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/telegram"
 	"github.com/mymmrac/telego"
 )
 
@@ -63,7 +63,7 @@ func formatVersionLink(binVersion, commitSHA string) string {
 	if strings.TrimSpace(commitSHA) == "" {
 		return escapedLabel
 	}
-	commitURL := fmt.Sprintf("https://github.com/liuran001/MusicBot-Go/commit/%s", commitSHA)
+	commitURL := fmt.Sprintf("https://github.com/k08255-lxm/netease-batch-downloader/commit/%s", commitSHA)
 	escapedURL := mdV2Replacer.Replace(commitURL)
 	return fmt.Sprintf("[%s](%s)", escapedLabel, escapedURL)
 }

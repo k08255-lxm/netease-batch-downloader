@@ -10,8 +10,8 @@ import (
 	"sync"
 	"time"
 
-	logpkg "github.com/liuran001/MusicBot-Go/bot/logger"
-	"github.com/liuran001/MusicBot-Go/bot/platform"
+	logpkg "github.com/k08255-lxm/netease-batch-downloader/bot/logger"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/platform"
 	"github.com/traefik/yaegi/interp"
 )
 

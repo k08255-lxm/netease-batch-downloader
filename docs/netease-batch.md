@@ -1,6 +1,6 @@
 # 网易云歌单批量下载
 
-这是一个独立的网易云批量下载项目，不再面向 Telegram Bot 使用场景。
+这是一个独立的 `netease-batch-downloader` 仓库，只面向网易云歌单/专辑批量下载。
 
 核心命令：
 
@@ -8,7 +8,7 @@
 go build -o netease-batch ./cmd/netease-batch
 ```
 
-它专门用来批量下载网易云歌单/专辑，不走 Telegram Bot 的交互分页流程。
+它专门用来批量下载网易云歌单/专辑，不再承担 Telegram Bot、Docker 镜像或多平台音乐聚合发布职责。
 
 ## 能力
 
@@ -48,7 +48,7 @@ setup_netease_batch_windows.bat
 - 在未手动配置 Cookie 时自动尝试从浏览器读取 `music.163.com` 登录态
 - 支持粘贴整段 `Cookie:` 文本并自动提取 `MUSIC_U`
 - 支持导入用户自己导出的 `cookie.txt`
-- 内置 `How To Get Cookie` 按钮，直接弹窗教用户怎么拿
+- 内置“如何获取 Cookie”按钮，直接弹窗教用户怎么拿
 - 自动写回 `[plugins.netease] music_u`
 - 立即校验 Cookie 是否可用
 - 可选直接开始第一次歌单下载
@@ -67,12 +67,12 @@ setup_netease_batch_windows.bat
 
 界面里直接点：
 
-- `Open NetEase`
-- `How To Get Cookie`
-- `Import Clipboard`
-- `Import Cookie File`
-- `Check Cookie`
-- `Start Download`
+- `打开网易云`
+- `如何获取 Cookie`
+- `导入剪贴板`
+- `导入 Cookie 文件`
+- `检查 Cookie`
+- `开始下载`
 
 默认会输出到：
 
@@ -108,6 +108,18 @@ go run ./cmd/netease-batch \
 - `-covers=false`：不导出封面文件
 - `-overwrite=true`：覆盖已存在文件
 - `-check`：只校验 `MUSIC_U` 是否可用，不下载
+
+## Release 自动化
+
+这个仓库的 GitHub Actions 会直接构建并发布 `netease-batch`：
+
+- `netease-batch-windows-amd64-vX.Y.Z.zip`
+- `netease-batch-linux-amd64-vX.Y.Z.tar.gz`
+- `netease-batch-linux-arm64-vX.Y.Z.tar.gz`
+- `netease-batch-darwin-amd64-vX.Y.Z.tar.gz`
+- `netease-batch-darwin-arm64-vX.Y.Z.tar.gz`
+
+打 tag 后会自动创建或更新 GitHub Release，不再发布历史遗留的 `musicbot-go` 产物。
 
 ## 说明
 

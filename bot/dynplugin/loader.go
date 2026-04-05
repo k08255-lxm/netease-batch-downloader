@@ -8,8 +8,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/liuran001/MusicBot-Go/bot/config"
-	logpkg "github.com/liuran001/MusicBot-Go/bot/logger"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/config"
+	logpkg "github.com/k08255-lxm/netease-batch-downloader/bot/logger"
 	"github.com/traefik/yaegi/interp"
 	"github.com/traefik/yaegi/stdlib"
 )

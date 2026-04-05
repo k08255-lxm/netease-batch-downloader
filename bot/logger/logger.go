@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/liuran001/MusicBot-Go/bot"
+	"github.com/k08255-lxm/netease-batch-downloader/bot"
 )
 
 // Logger wraps slog.Logger to satisfy bot.Logger.

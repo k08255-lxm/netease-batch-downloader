@@ -34,15 +34,15 @@ Release 下载：
 
 ## 最短使用流程
 
-1. 去 Release 下载 `netease-batch-windows-amd64.zip`
+1. 去 Release 下载最新的 `netease-batch-windows-amd64-vX.Y.Z.zip`
 2. 解压
 3. 双击 `setup_netease_batch_windows.bat`
 4. 在窗口里：
    - 直接粘贴 `MUSIC_U`，或留空让程序自动从浏览器读取
    - 粘贴歌单链接
    - 选择输出目录
-   - 点击 `Check Cookie`
-   - 点击 `Start Download`
+   - 点击“检查 Cookie”
+   - 点击“开始下载”
 
 Windows 下如果配置里没有手动填写 `cookie` / `music_u`，程序会自动尝试从已登录的 `Edge`、`Chrome`、`Brave`、`Firefox` 读取 `music.163.com` 的 Cookie。
 
@@ -60,7 +60,7 @@ setup_netease_batch_windows.bat
 - `MUSIC_U` 留空时运行时自动尝试读取浏览器 Cookie
 - 从剪贴板导入 `MUSIC_U` 或整段 `Cookie:` 文本
 - 导入用户自己导出的 `cookie.txt`
-- 内置 `How To Get Cookie` 按钮，直接显示获取步骤
+- 内置“如何获取 Cookie”按钮，直接显示获取步骤
 - 一键校验 Cookie
 - 一键开始下载
 - 打开输出目录
@@ -84,6 +84,18 @@ go run ./cmd/netease-batch \
   -quality lossless \
   -concurrency 4
 ```
+
+## Release 产物
+
+GitHub Release 现在只发布 `netease-batch` 相关产物，不再附带历史遗留的通用 bot 产物。
+
+当前发布命名：
+
+- Windows: `netease-batch-windows-amd64-vX.Y.Z.zip`
+- Linux: `netease-batch-linux-amd64-vX.Y.Z.tar.gz`
+- Linux ARM64: `netease-batch-linux-arm64-vX.Y.Z.tar.gz`
+- macOS: `netease-batch-darwin-amd64-vX.Y.Z.tar.gz`
+- macOS ARM64: `netease-batch-darwin-arm64-vX.Y.Z.tar.gz`
 
 ## 参数
 

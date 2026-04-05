@@ -8,7 +8,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/liuran001/MusicBot-Go/bot/platform/registry"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/platform/registry"
 )
 
 // DefaultManager implements the Manager interface by wrapping the registry.

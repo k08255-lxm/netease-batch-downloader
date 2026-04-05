@@ -3,7 +3,7 @@ package netease
 import (
 	"testing"
 
-	"github.com/liuran001/MusicBot-Go/bot/platform"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/platform"
 )
 
 // TestName verifies the platform name is "netease".

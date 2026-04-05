@@ -1,6 +1,6 @@
 package kugou
 
-import botpkg "github.com/liuran001/MusicBot-Go/bot"
+import botpkg "github.com/k08255-lxm/netease-batch-downloader/bot"
 
 const (
 	NoHiResWhenDefaultKey = "no_hires_when_default"

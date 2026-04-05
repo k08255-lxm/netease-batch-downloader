@@ -15,11 +15,17 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/liuran001/MusicBot-Go/bot/download"
-	"github.com/liuran001/MusicBot-Go/bot/id3"
-	"github.com/liuran001/MusicBot-Go/bot/platform"
-	"github.com/liuran001/MusicBot-Go/plugins/netease"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/download"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/id3"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/platform"
+	"github.com/k08255-lxm/netease-batch-downloader/plugins/netease"
 	"gopkg.in/ini.v1"
+)
+
+var (
+	versionName = ""
+	commitSHA   = ""
+	buildTime   = ""
 )
 
 type appConfig struct {
@@ -121,6 +127,7 @@ func main() {
 		covers      bool
 		overwrite   bool
 		checkOnly   bool
+		showVersion bool
 	)
 
 	flag.StringVar(&configPath, "config", "config.ini", "配置文件路径，会读取 [plugins.netease] cookie / music_u")
@@ -133,7 +140,23 @@ func main() {
 	flag.BoolVar(&covers, "covers", true, "导出封面文件，并尝试写入音频标签")
 	flag.BoolVar(&overwrite, "overwrite", false, "覆盖已存在文件")
 	flag.BoolVar(&checkOnly, "check", false, "只校验网易云 cookie 是否可用于下载，不执行批量下载")
+	flag.BoolVar(&showVersion, "version", false, "显示版本信息")
 	flag.Parse()
+
+	if showVersion {
+		version := strings.TrimSpace(versionName)
+		if version == "" {
+			version = "dev"
+		}
+		fmt.Printf("netease-batch %s\n", version)
+		if strings.TrimSpace(commitSHA) != "" {
+			fmt.Printf("commit: %s\n", strings.TrimSpace(commitSHA))
+		}
+		if strings.TrimSpace(buildTime) != "" {
+			fmt.Printf("build_time: %s\n", strings.TrimSpace(buildTime))
+		}
+		return
+	}
 
 	if !checkOnly && strings.TrimSpace(rawURL) == "" {
 		fmt.Fprintln(os.Stderr, "缺少 -url 参数")

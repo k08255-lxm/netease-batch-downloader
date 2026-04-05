@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/go-retryablehttp"
-	"github.com/liuran001/MusicBot-Go/bot/platform"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/platform"
 	"github.com/skip2/go-qrcode"
 )
 

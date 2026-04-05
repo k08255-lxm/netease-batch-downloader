@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/guohuiyuan/music-lib/model"
-	"github.com/liuran001/MusicBot-Go/bot/platform"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/platform"
 )
 
 type ConceptSessionManager struct {

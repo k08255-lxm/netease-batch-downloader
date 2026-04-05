@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/liuran001/MusicBot-Go/bot/platform"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/platform"
 )
 
 func TestURLMatcherMatchURL(t *testing.T) {

@@ -11,8 +11,8 @@ import (
 	"strings"
 	"time"
 
-	botpkg "github.com/liuran001/MusicBot-Go/bot"
-	"github.com/liuran001/MusicBot-Go/bot/platform"
+	botpkg "github.com/k08255-lxm/netease-batch-downloader/bot"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/platform"
 	"github.com/mymmrac/telego"
 )
 
@@ -223,8 +223,8 @@ func (h *InlineSearchHandler) inlineEmpty(ctx context.Context, b *telego.Bot, qu
 		Type:                telego.ResultTypeArticle,
 		ID:                  query.ID,
 		Title:               "输入 help 获取帮助",
-		Description:         "MusicBot-Go",
-		InputMessageContent: &telego.InputTextMessageContent{MessageText: "MusicBot-Go"},
+		Description:         "netease-batch-downloader",
+		InputMessageContent: &telego.InputTextMessageContent{MessageText: "netease-batch-downloader"},
 	}
 	_ = b.AnswerInlineQuery(ctx, &telego.AnswerInlineQueryParams{
 		InlineQueryID: query.ID,
@@ -301,8 +301,8 @@ func (h *InlineSearchHandler) inlineSearch(ctx context.Context, b *telego.Bot, q
 			Type:                telego.ResultTypeArticle,
 			ID:                  "inline_empty_keyword",
 			Title:               "请输入关键词",
-			Description:         "MusicBot-Go",
-			InputMessageContent: &telego.InputTextMessageContent{MessageText: "MusicBot-Go"},
+			Description:         "netease-batch-downloader",
+			InputMessageContent: &telego.InputTextMessageContent{MessageText: "netease-batch-downloader"},
 		}
 		_ = b.AnswerInlineQuery(ctx, &telego.AnswerInlineQueryParams{
 			InlineQueryID: query.ID,

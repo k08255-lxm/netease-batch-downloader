@@ -17,8 +17,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/liuran001/MusicBot-Go/bot"
-	"github.com/liuran001/MusicBot-Go/bot/platform"
+	"github.com/k08255-lxm/netease-batch-downloader/bot"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/platform"
 )
 
 func newSodaTestClient(serverURL string) *Client {

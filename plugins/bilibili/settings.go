@@ -3,7 +3,7 @@ package bilibili
 import (
 	"strings"
 
-	botpkg "github.com/liuran001/MusicBot-Go/bot"
+	botpkg "github.com/k08255-lxm/netease-batch-downloader/bot"
 )
 
 const (

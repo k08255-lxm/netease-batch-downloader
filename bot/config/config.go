@@ -9,7 +9,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/liuran001/MusicBot-Go/bot/httpproxy"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/httpproxy"
 	"github.com/spf13/viper"
 	"gopkg.in/ini.v1"
 )

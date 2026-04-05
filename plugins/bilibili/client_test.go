@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	logpkg "github.com/liuran001/MusicBot-Go/bot/logger"
+	logpkg "github.com/k08255-lxm/netease-batch-downloader/bot/logger"
 )
 
 func getTestClient() *Client {

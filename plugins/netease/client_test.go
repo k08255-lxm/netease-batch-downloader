@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/liuran001/MusicBot-Go/bot/httpproxy"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/httpproxy"
 )
 
 func TestWithRetryStopsOnSuccess(t *testing.T) {

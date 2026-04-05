@@ -13,9 +13,9 @@ import (
 	"strings"
 	"time"
 
-	logpkg "github.com/liuran001/MusicBot-Go/bot/logger"
-	"github.com/liuran001/MusicBot-Go/bot/recognize"
-	"github.com/liuran001/MusicBot-Go/bot/telegram"
+	logpkg "github.com/k08255-lxm/netease-batch-downloader/bot/logger"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/recognize"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/telegram"
 	"github.com/mymmrac/telego"
 )
 

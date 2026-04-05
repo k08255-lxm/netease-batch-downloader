@@ -6,10 +6,10 @@ import (
 	"strings"
 	"time"
 
-	botpkg "github.com/liuran001/MusicBot-Go/bot"
-	"github.com/liuran001/MusicBot-Go/bot/config"
-	logpkg "github.com/liuran001/MusicBot-Go/bot/logger"
-	platformplugins "github.com/liuran001/MusicBot-Go/bot/platform/plugins"
+	botpkg "github.com/k08255-lxm/netease-batch-downloader/bot"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/config"
+	logpkg "github.com/k08255-lxm/netease-batch-downloader/bot/logger"
+	platformplugins "github.com/k08255-lxm/netease-batch-downloader/bot/platform/plugins"
 )
 
 func init() {

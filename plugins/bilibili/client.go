@@ -14,7 +14,7 @@ import (
 	"sync"
 
 	"github.com/hashicorp/go-retryablehttp"
-	"github.com/liuran001/MusicBot-Go/bot"
+	"github.com/k08255-lxm/netease-batch-downloader/bot"
 	"github.com/sony/gobreaker"
 )
 

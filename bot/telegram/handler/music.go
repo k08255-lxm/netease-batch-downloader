@@ -16,12 +16,12 @@ import (
 	"time"
 
 	"github.com/go-flac/go-flac"
-	botpkg "github.com/liuran001/MusicBot-Go/bot"
-	"github.com/liuran001/MusicBot-Go/bot/admincmd"
-	"github.com/liuran001/MusicBot-Go/bot/download"
-	"github.com/liuran001/MusicBot-Go/bot/id3"
-	"github.com/liuran001/MusicBot-Go/bot/platform"
-	"github.com/liuran001/MusicBot-Go/bot/telegram"
+	botpkg "github.com/k08255-lxm/netease-batch-downloader/bot"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/admincmd"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/download"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/id3"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/platform"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/telegram"
 	"github.com/mymmrac/telego"
 	"golang.org/x/sync/singleflight"
 )

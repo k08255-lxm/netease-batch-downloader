@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/liuran001/MusicBot-Go/bot/recognize"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/recognize"
 )
 
 // Recognizer adapts the NetEase recognition service to the core interface.

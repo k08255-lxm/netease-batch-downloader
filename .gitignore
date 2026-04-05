@@ -4,9 +4,8 @@
 *.dll
 *.so
 *.dylib
-MusicBot-Go
-Music163bot-Go
 /netease-batch
+/netease-batch.exe
 
 # Test binary, built with `go test -c`
 *.test

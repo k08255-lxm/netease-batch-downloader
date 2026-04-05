@@ -14,8 +14,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/liuran001/MusicBot-Go/bot/platform"
-	"github.com/liuran001/MusicBot-Go/bot/util"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/platform"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/util"
 )
 
 type ProgressFunc = util.ProgressFunc

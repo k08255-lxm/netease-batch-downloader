@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/liuran001/MusicBot-Go/bot"
+	"github.com/k08255-lxm/netease-batch-downloader/bot"
 )
 
 // Updater provides a placeholder for dynamic update integration.

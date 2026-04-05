@@ -6,9 +6,9 @@ import (
 	"sort"
 	"strings"
 
-	botpkg "github.com/liuran001/MusicBot-Go/bot"
-	"github.com/liuran001/MusicBot-Go/bot/platform"
-	"github.com/liuran001/MusicBot-Go/bot/telegram"
+	botpkg "github.com/k08255-lxm/netease-batch-downloader/bot"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/platform"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/telegram"
 	"github.com/mymmrac/telego"
 )
 

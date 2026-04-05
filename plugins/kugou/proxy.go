@@ -3,7 +3,7 @@ package kugou
 import (
 	"time"
 
-	"github.com/liuran001/MusicBot-Go/bot/httpproxy"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/httpproxy"
 )
 
 const defaultKugouProxyTimeout = 20 * time.Second

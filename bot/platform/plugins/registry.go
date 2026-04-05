@@ -5,13 +5,13 @@ import (
 	"sort"
 	"sync"
 
-	"github.com/liuran001/MusicBot-Go/bot"
-	"github.com/liuran001/MusicBot-Go/bot/admincmd"
-	"github.com/liuran001/MusicBot-Go/bot/config"
-	"github.com/liuran001/MusicBot-Go/bot/id3"
-	logpkg "github.com/liuran001/MusicBot-Go/bot/logger"
-	"github.com/liuran001/MusicBot-Go/bot/platform"
-	"github.com/liuran001/MusicBot-Go/bot/recognize"
+	"github.com/k08255-lxm/netease-batch-downloader/bot"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/admincmd"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/config"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/id3"
+	logpkg "github.com/k08255-lxm/netease-batch-downloader/bot/logger"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/platform"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/recognize"
 )
 
 // Contribution describes the components a plugin can provide.

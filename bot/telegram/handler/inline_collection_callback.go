@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/liuran001/MusicBot-Go/bot/telegram"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/telegram"
 	"github.com/mymmrac/telego"
 )
 

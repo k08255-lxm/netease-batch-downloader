@@ -4,8 +4,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/liuran001/MusicBot-Go/bot/admincmd"
-	"github.com/liuran001/MusicBot-Go/bot/platform"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/admincmd"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/platform"
 )
 
 var mdV2Replacer = strings.NewReplacer(

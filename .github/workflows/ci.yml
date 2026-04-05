@@ -3,14 +3,13 @@ name: CI
 on:
   push:
     branches: ["main"]
-    tags: ["*"]
+    tags: ["v*"]
   pull_request:
     branches: ["main"]
   workflow_dispatch:
 
 permissions:
   contents: read
-  packages: write
 
 jobs:
   test:
@@ -18,264 +17,160 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
+
       - name: Setup Go
         uses: actions/setup-go@v6
         with:
           go-version: "1.26"
           cache: true
+
       - name: Show Go version
         run: go version
+
       - name: Download modules
         run: go mod download
-      - name: Run vet
-        run: go vet ./...
-      - name: Run race tests (critical packages)
-        run: go test -race ./bot/telegram/handler ./bot/download ./bot/platform ./bot/worker
-      - name: Run tests
-        run: go test ./...
+
+      - name: Run targeted tests
+        run: |
+          go test ./cmd/netease-batch \
+            ./plugins/netease \
+            ./bot/download \
+            ./bot/id3 \
+            ./bot/platform \
+            ./bot/httpproxy \
+            ./bot/util
+
   build:
     runs-on: ubuntu-latest
+    needs: [test]
     strategy:
       fail-fast: false
       matrix:
         include:
-          - goos: linux
-            goarch: amd64
-            ext: ""
-          - goos: linux
-            goarch: arm64
-            ext: ""
           - goos: windows
             goarch: amd64
-            ext: ".exe"
+            binary_name: netease-batch.exe
+            archive_ext: zip
+          - goos: linux
+            goarch: amd64
+            binary_name: netease-batch
+            archive_ext: tar.gz
+          - goos: linux
+            goarch: arm64
+            binary_name: netease-batch
+            archive_ext: tar.gz
           - goos: darwin
             goarch: amd64
-            ext: ""
+            binary_name: netease-batch
+            archive_ext: tar.gz
           - goos: darwin
             goarch: arm64
-            ext: ""
+            binary_name: netease-batch
+            archive_ext: tar.gz
     steps:
       - name: Checkout
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
+
       - name: Derive build metadata
         id: build_meta
         run: |
           TAG=$(git tag --points-at HEAD | head -n 1)
-          if [ -z "$TAG" ]; then
-            VERSION=$(git rev-parse --short=7 HEAD)
-          else
+          if [ -n "$TAG" ]; then
             VERSION="$TAG"
+          else
+            VERSION="$(git rev-parse --short=7 HEAD)"
           fi
-          COMMIT=$(git rev-parse HEAD)
-          BUILD_TIME=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          COMMIT="$(git rev-parse HEAD)"
+          BUILD_TIME="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "commit=$COMMIT" >> "$GITHUB_OUTPUT"
           echo "build_time=$BUILD_TIME" >> "$GITHUB_OUTPUT"
+
       - name: Setup Go
         uses: actions/setup-go@v6
         with:
           go-version: "1.26"
           cache: true
+
       - name: Show Go version
         run: go version
+
       - name: Download modules
         run: go mod download
-      - name: Build
+
+      - name: Build and package
         env:
           GOOS: ${{ matrix.goos }}
           GOARCH: ${{ matrix.goarch }}
           CGO_ENABLED: 0
+          BUILD_VERSION: ${{ steps.build_meta.outputs.version }}
+          BUILD_COMMIT: ${{ steps.build_meta.outputs.commit }}
+          BUILD_TIME: ${{ steps.build_meta.outputs.build_time }}
+          ARCHIVE_EXT: ${{ matrix.archive_ext }}
+          BINARY_NAME: ${{ matrix.binary_name }}
+        shell: bash
         run: |
-          mkdir -p dist/package/plugins/netease
-          go build -trimpath -ldflags "-X main.versionName=${{ steps.build_meta.outputs.version }} -X main.commitSHA=${{ steps.build_meta.outputs.commit }} -X main.buildTime=${{ steps.build_meta.outputs.build_time }}" -o "dist/package/musicbot-go-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.ext }}" .
-          cp README.md config_example.ini dist/package/
-          cp -R plugins/netease/recognize dist/package/plugins/netease/
-          if [ "${{ matrix.goos }}" = "windows" ]; then
-            (cd dist/package && zip -r "../musicbot-go-${{ matrix.goos }}-${{ matrix.goarch }}.zip" .)
-          else
-            (cd dist/package && tar -czf "../musicbot-go-${{ matrix.goos }}-${{ matrix.goarch }}.tar.gz" .)
+          VERSION="$BUILD_VERSION"
+          case "$VERSION" in
+            v*) PACKAGE_VERSION="$VERSION" ;;
+            *) PACKAGE_VERSION="v$VERSION" ;;
+          esac
+          PACKAGE_NAME="netease-batch-${GOOS}-${GOARCH}-${PACKAGE_VERSION}"
+          PACKAGE_DIR="dist/$PACKAGE_NAME"
+          ARCHIVE_PATH="dist/${PACKAGE_NAME}.${ARCHIVE_EXT}"
+
+          mkdir -p "$PACKAGE_DIR"
+
+          go build -trimpath \
+            -ldflags "-X main.versionName=$BUILD_VERSION -X main.commitSHA=$BUILD_COMMIT -X main.buildTime=$BUILD_TIME" \
+            -o "$PACKAGE_DIR/$BINARY_NAME" \
+            ./cmd/netease-batch
+
+          cp README.md config_example.ini LICENSE "$PACKAGE_DIR/"
+          if [ "$GOOS" = "windows" ]; then
+            cp build_netease_batch_windows.bat download_netease_playlist.bat setup_netease_batch_windows.bat setup_netease_batch_windows.ps1 "$PACKAGE_DIR/"
           fi
+
+          export PACKAGE_DIR ARCHIVE_PATH ARCHIVE_EXT
+          python3 - <<'PY'
+          import os
+          import tarfile
+          import zipfile
+          from pathlib import Path
+
+          package_dir = Path(os.environ["PACKAGE_DIR"])
+          archive_path = Path(os.environ["ARCHIVE_PATH"])
+          archive_ext = os.environ["ARCHIVE_EXT"]
+
+          if archive_ext == "zip":
+              with zipfile.ZipFile(archive_path, "w", zipfile.ZIP_DEFLATED) as zf:
+                  for file_path in sorted(package_dir.rglob("*")):
+                      if file_path.is_file():
+                          zf.write(file_path, file_path.relative_to(package_dir.parent))
+          elif archive_ext == "tar.gz":
+              with tarfile.open(archive_path, "w:gz") as tf:
+                  for file_path in sorted(package_dir.rglob("*")):
+                      tf.add(file_path, arcname=file_path.relative_to(package_dir.parent))
+          else:
+              raise SystemExit(f"unsupported archive extension: {archive_ext}")
+          PY
+
+          sha256sum "$ARCHIVE_PATH" > "${ARCHIVE_PATH}.sha256"
+
       - name: Upload artifact
         uses: actions/upload-artifact@v6
         with:
-          name: musicbot-go-${{ matrix.goos }}-${{ matrix.goarch }}
-          path: dist/musicbot-go-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.goos == 'windows' && '.zip' || '.tar.gz' }}
-
-  netease-batch-package:
-    runs-on: ubuntu-latest
-    needs: [test]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-      - name: Derive build metadata
-        id: build_meta
-        run: |
-          TAG=$(git tag --points-at HEAD | head -n 1)
-          if [ -z "$TAG" ]; then
-            VERSION=$(git rev-parse --short=7 HEAD)
-          else
-            VERSION="$TAG"
-          fi
-          COMMIT=$(git rev-parse HEAD)
-          BUILD_TIME=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "commit=$COMMIT" >> "$GITHUB_OUTPUT"
-          echo "build_time=$BUILD_TIME" >> "$GITHUB_OUTPUT"
-      - name: Setup Go
-        uses: actions/setup-go@v6
-        with:
-          go-version: "1.26"
-          cache: true
-      - name: Show Go version
-        run: go version
-      - name: Download modules
-        run: go mod download
-      - name: Build netease-batch package
-        env:
-          GOOS: windows
-          GOARCH: amd64
-          CGO_ENABLED: 0
-        run: |
-          VERSION="${{ steps.build_meta.outputs.version }}"
-          case "$VERSION" in
-            v*) PACKAGE_NAME="netease-batch-windows-amd64-$VERSION" ;;
-            *) PACKAGE_NAME="netease-batch-windows-amd64-v$VERSION" ;;
-          esac
-          export PACKAGE_NAME
-          PACKAGE_DIR="dist/${PACKAGE_NAME}"
-          mkdir -p "$PACKAGE_DIR"
-          go build -trimpath -ldflags "-X main.versionName=${{ steps.build_meta.outputs.version }} -X main.commitSHA=${{ steps.build_meta.outputs.commit }} -X main.buildTime=${{ steps.build_meta.outputs.build_time }}" -o "$PACKAGE_DIR/netease-batch.exe" ./cmd/netease-batch
-          cp LICENSE README.md config_example.ini download_netease_playlist.bat setup_netease_batch_windows.bat setup_netease_batch_windows.ps1 "$PACKAGE_DIR/"
-          python3 - <<'PY'
-          import os
-          import zipfile
-
-          package_name = os.environ["PACKAGE_NAME"]
-          package_dir = os.path.join("dist", package_name)
-          zip_path = os.path.join("dist", f"{package_name}.zip")
-          with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
-              for root, _, files in os.walk(package_dir):
-                  for file_name in sorted(files):
-                      full_path = os.path.join(root, file_name)
-                      arcname = os.path.relpath(full_path, ".")
-                      zf.write(full_path, arcname)
-          PY
-          sha256sum "dist/${PACKAGE_NAME}.zip" > "dist/${PACKAGE_NAME}.zip.sha256"
-        shell: bash
-      - name: Upload netease-batch artifact
-        uses: actions/upload-artifact@v6
-        with:
-          name: netease-batch-windows-amd64
+          name: netease-batch-${{ matrix.goos }}-${{ matrix.goarch }}
           path: |
             dist/*.zip
-            dist/*.zip.sha256
-
-  docker:
-    runs-on: ubuntu-latest
-    needs: [test]
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Log in to GHCR
-        if: github.event_name != 'pull_request'
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Extract Docker metadata (full)
-        id: meta_full
-        uses: docker/metadata-action@v5
-        with:
-          images: ghcr.io/${{ github.repository_owner }}/musicbot-go
-          tags: |
-            type=ref,event=branch
-            type=ref,event=tag
-            type=sha
-            type=raw,value=latest,enable={{is_default_branch}}
-
-      - name: Extract Docker metadata (lite)
-        id: meta_lite
-        uses: docker/metadata-action@v5
-        with:
-          images: ghcr.io/${{ github.repository_owner }}/musicbot-go
-          flavor: |
-            latest=false
-          tags: |
-            type=ref,event=branch,suffix=-lite
-            type=ref,event=tag,suffix=-lite
-            type=sha,suffix=-lite
-            type=raw,value=lite,enable={{is_default_branch}}
-
-      - name: Derive build metadata
-        id: docker_build_meta
-        run: |
-          TAG=$(git tag --points-at HEAD | head -n 1)
-          if [ -z "$TAG" ]; then
-            VERSION=$(git rev-parse --short=7 HEAD)
-          else
-            VERSION="$TAG"
-          fi
-          COMMIT=$(git rev-parse HEAD)
-          BUILD_TIME=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "commit=$COMMIT" >> "$GITHUB_OUTPUT"
-          echo "build_time=$BUILD_TIME" >> "$GITHUB_OUTPUT"
-
-      - name: Build and push Docker image (full)
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./Dockerfile
-          target: full
-          platforms: linux/amd64,linux/arm64
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta_full.outputs.tags }}
-          labels: ${{ steps.meta_full.outputs.labels }}
-          build-args: |
-            VERSION=${{ steps.docker_build_meta.outputs.version }}
-            COMMIT_SHA=${{ steps.docker_build_meta.outputs.commit }}
-            BUILD_TIME=${{ steps.docker_build_meta.outputs.build_time }}
-          cache-from: type=gha,scope=docker-full
-          cache-to: type=gha,mode=max,scope=docker-full
-
-      - name: Build and push Docker image (lite)
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./Dockerfile
-          target: lite
-          platforms: linux/amd64,linux/arm64
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta_lite.outputs.tags }}
-          labels: ${{ steps.meta_lite.outputs.labels }}
-          build-args: |
-            VERSION=${{ steps.docker_build_meta.outputs.version }}
-            COMMIT_SHA=${{ steps.docker_build_meta.outputs.commit }}
-            BUILD_TIME=${{ steps.docker_build_meta.outputs.build_time }}
-          cache-from: type=gha,scope=docker-lite
-          cache-to: type=gha,mode=max,scope=docker-lite
+            dist/*.tar.gz
+            dist/*.sha256
 
   release:
     if: startsWith(github.ref, 'refs/tags/')
-    needs: [test, build, netease-batch-package]
+    needs: [build]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -284,13 +179,14 @@ jobs:
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
+
       - name: Download artifacts
         uses: actions/download-artifact@v7
         with:
           path: dist
           merge-multiple: true
+
       - name: Generate release notes
-        id: release_notes
         run: |
           TAG_NAME=${GITHUB_REF#refs/tags/}
           PREV_TAG=$(git describe --tags --abbrev=0 "$TAG_NAME"^ 2>/dev/null || true)
@@ -301,12 +197,16 @@ jobs:
               echo "From $PREV_TAG to $TAG_NAME"
               git log --pretty=format:"- %s (%an)" "$PREV_TAG".."$TAG_NAME"
             else
+              echo ""
               git log --pretty=format:"- %s (%an)" "$TAG_NAME"
             fi
           } > release-notes.md
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           body_path: release-notes.md
           files: |
-            dist/*
+            dist/*.zip
+            dist/*.tar.gz
+            dist/*.sha256

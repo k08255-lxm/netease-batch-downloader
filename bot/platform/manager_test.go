@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/liuran001/MusicBot-Go/bot/platform/registry"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/platform/registry"
 )
 
 // mockPlatform is a mock implementation of Platform for testing.

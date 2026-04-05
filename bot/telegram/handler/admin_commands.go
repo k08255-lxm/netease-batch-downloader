@@ -8,9 +8,9 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/liuran001/MusicBot-Go/bot/admincmd"
-	"github.com/liuran001/MusicBot-Go/bot/platform"
-	"github.com/liuran001/MusicBot-Go/bot/telegram"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/admincmd"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/platform"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/telegram"
 	"github.com/mymmrac/telego"
 	"github.com/mymmrac/telego/telegoutil"
 )

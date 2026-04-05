@@ -1,4 +1,4 @@
-module github.com/liuran001/MusicBot-Go
+module github.com/k08255-lxm/netease-batch-downloader
 
 go 1.26.0
 

@@ -20,9 +20,9 @@ import (
 
 	kugoulib "github.com/guohuiyuan/music-lib/kugou"
 	"github.com/guohuiyuan/music-lib/model"
-	"github.com/liuran001/MusicBot-Go/bot"
-	"github.com/liuran001/MusicBot-Go/bot/httpproxy"
-	"github.com/liuran001/MusicBot-Go/bot/platform"
+	"github.com/k08255-lxm/netease-batch-downloader/bot"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/httpproxy"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/platform"
 )
 
 const (

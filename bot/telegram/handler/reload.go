@@ -3,8 +3,8 @@ package handler
 import (
 	"context"
 
-	logpkg "github.com/liuran001/MusicBot-Go/bot/logger"
-	"github.com/liuran001/MusicBot-Go/bot/telegram"
+	logpkg "github.com/k08255-lxm/netease-batch-downloader/bot/logger"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/telegram"
 	"github.com/mymmrac/telego"
 )
 

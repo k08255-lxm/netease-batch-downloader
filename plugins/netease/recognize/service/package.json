@@ -2,7 +2,7 @@
   "name": "musicbot-recognize-service",
   "version": "1.0.0",
   "type": "module",
-  "description": "Local audio recognition service for MusicBot-Go",
+  "description": "Local audio recognition service for netease-batch-downloader",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"

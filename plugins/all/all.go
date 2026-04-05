@@ -1,9 +1,9 @@
 package all
 
 import (
-	_ "github.com/liuran001/MusicBot-Go/plugins/bilibili"
-	_ "github.com/liuran001/MusicBot-Go/plugins/kugou"
-	_ "github.com/liuran001/MusicBot-Go/plugins/netease"
-	_ "github.com/liuran001/MusicBot-Go/plugins/qqmusic"
-	_ "github.com/liuran001/MusicBot-Go/plugins/soda"
+	_ "github.com/k08255-lxm/netease-batch-downloader/plugins/bilibili"
+	_ "github.com/k08255-lxm/netease-batch-downloader/plugins/kugou"
+	_ "github.com/k08255-lxm/netease-batch-downloader/plugins/netease"
+	_ "github.com/k08255-lxm/netease-batch-downloader/plugins/qqmusic"
+	_ "github.com/k08255-lxm/netease-batch-downloader/plugins/soda"
 )

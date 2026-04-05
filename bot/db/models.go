@@ -3,7 +3,7 @@ package db
 import (
 	"time"
 
-	"github.com/liuran001/MusicBot-Go/bot"
+	"github.com/k08255-lxm/netease-batch-downloader/bot"
 	"gorm.io/gorm"
 )
 

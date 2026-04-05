@@ -4,8 +4,8 @@ import (
 	"context"
 	"strings"
 
-	botpkg "github.com/liuran001/MusicBot-Go/bot"
-	"github.com/liuran001/MusicBot-Go/plugins/kugou"
+	botpkg "github.com/k08255-lxm/netease-batch-downloader/bot"
+	"github.com/k08255-lxm/netease-batch-downloader/plugins/kugou"
 )
 
 func resolvePlatformQualityValue(ctx context.Context, repo botpkg.SongRepository, scopeType string, scopeID int64, platformName, qualityValue string, explicitOverride bool) string {

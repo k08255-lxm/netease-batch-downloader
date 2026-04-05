@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	botpkg "github.com/liuran001/MusicBot-Go/bot"
+	botpkg "github.com/k08255-lxm/netease-batch-downloader/bot"
 	"github.com/mymmrac/telego"
 )
 

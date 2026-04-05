@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"strings"
 
-	botpkg "github.com/liuran001/MusicBot-Go/bot"
-	"github.com/liuran001/MusicBot-Go/bot/platform"
+	botpkg "github.com/k08255-lxm/netease-batch-downloader/bot"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/platform"
 	"go.senan.xyz/taglib"
 )
 

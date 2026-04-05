@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/liuran001/MusicBot-Go/bot/id3"
-	"github.com/liuran001/MusicBot-Go/bot/platform"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/id3"
+	"github.com/k08255-lxm/netease-batch-downloader/bot/platform"
 )
 
 type ID3Provider struct {

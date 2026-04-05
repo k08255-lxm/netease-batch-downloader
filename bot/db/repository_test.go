@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/liuran001/MusicBot-Go/bot"
-	logpkg "github.com/liuran001/MusicBot-Go/bot/logger"
+	"github.com/k08255-lxm/netease-batch-downloader/bot"
+	logpkg "github.com/k08255-lxm/netease-batch-downloader/bot/logger"
 	"gorm.io/gorm/logger"
 )
 

@@ -11,4 +11,4 @@ LDFlags="\
     -X 'main.buildTime=${BUILD_TIME}'\
 "
 
-CGO_ENABLED=0 go build -trimpath -ldflags "${LDFlags}"
+CGO_ENABLED=0 go build -trimpath -ldflags "${LDFlags}" -o netease-batch ./cmd/netease-batch
