@@ -47,6 +47,7 @@ setup_netease_batch_windows.bat
 - 支持粘贴 `MUSIC_U`
 - 支持粘贴整段 `Cookie:` 文本并自动提取 `MUSIC_U`
 - 支持导入用户自己导出的 `cookie.txt`
+- 内置 `How To Get Cookie` 按钮，直接弹窗教用户怎么拿
 - 自动写回 `[plugins.netease] music_u`
 - 立即校验 Cookie 是否可用
 - 可选直接开始第一次歌单下载
@@ -66,6 +67,7 @@ setup_netease_batch_windows.bat
 界面里直接点：
 
 - `Open NetEase`
+- `How To Get Cookie`
 - `Import Clipboard`
 - `Import Cookie File`
 - `Check Cookie`
@@ -113,3 +115,4 @@ go run ./cmd/netease-batch \
 - Windows 首次使用建议直接运行 `setup_netease_batch_windows.bat`
 - 现在的 Windows 向导是 GUI 方式，适合“下载后双击即填表使用”
 - GUI 不会直接扫描本机浏览器 Cookie 数据库；如果你不想手动找单个值，可以直接导入你自己导出的 Cookie 文本或 `cookie.txt`
+- 对 `mp3`、`flac`、`m4a`、`mp4`，封面会尝试直接写进音频标签；外部 `covers/` 图片仍会保留作为源数据备份

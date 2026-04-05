@@ -154,9 +154,15 @@ $form.Controls.Add($lblTitle)
 
 $lblHint = New-Object System.Windows.Forms.Label
 $lblHint.Location = New-Object System.Drawing.Point(20, 48)
-$lblHint.Size = New-Object System.Drawing.Size(810, 38)
-$lblHint.Text = "1. Click Open NetEase to log in. 2. Copy MUSIC_U from browser cookies. 3. Paste it here. 4. Click Check. 5. Paste playlist URL and click Start Download."
+$lblHint.Size = New-Object System.Drawing.Size(670, 38)
+$lblHint.Text = "Need help finding MUSIC_U? Click the guide button on the right. After import, click Check Cookie, then Start Download."
 $form.Controls.Add($lblHint)
+
+$btnCookieGuide = New-Object System.Windows.Forms.Button
+$btnCookieGuide.Location = New-Object System.Drawing.Point(710, 48)
+$btnCookieGuide.Size = New-Object System.Drawing.Size(130, 30)
+$btnCookieGuide.Text = "How To Get Cookie"
+$form.Controls.Add($btnCookieGuide)
 
 $lblMusicU = New-Object System.Windows.Forms.Label
 $lblMusicU.Location = New-Object System.Drawing.Point(20, 96)
@@ -191,8 +197,8 @@ $form.Controls.Add($chkShowCookie)
 
 $lblCookieHint = New-Object System.Windows.Forms.Label
 $lblCookieHint.Location = New-Object System.Drawing.Point(250, 126)
-$lblCookieHint.Size = New-Object System.Drawing.Size(590, 24)
-$lblCookieHint.Text = "Browser: F12 -> Application/Storage -> Cookies -> https://music.163.com -> MUSIC_U"
+$lblCookieHint.Size = New-Object System.Drawing.Size(590, 40)
+$lblCookieHint.Text = "Chrome/Edge: F12 -> Application -> Storage -> Cookies -> https://music.163.com -> MUSIC_U"
 $form.Controls.Add($lblCookieHint)
 
 $lblURL = New-Object System.Windows.Forms.Label
@@ -369,6 +375,7 @@ function Set-Busy {
     $btnBuild.Enabled = -not $Value
     $btnImportClipboard.Enabled = -not $Value
     $btnImportCookieFile.Enabled = -not $Value
+    $btnCookieGuide.Enabled = -not $Value
 }
 
 function Save-ConfigFromUI {
@@ -476,6 +483,32 @@ function Invoke-LoggedProcess {
 $btnOpenSite.Add_Click({
     Start-Process "https://music.163.com"
     Append-Log "Opened https://music.163.com"
+})
+
+$btnCookieGuide.Add_Click({
+    $guide = @"
+How to get MUSIC_U
+
+Method 1: Browser DevTools
+1. Click Open NetEase and log in.
+2. Press F12.
+3. Open Application.
+4. Open Storage -> Cookies -> https://music.163.com
+5. Find MUSIC_U.
+6. Double-click its Value and copy it.
+7. Paste it back into this window, or copy the whole Cookie line and use Import Clipboard.
+
+Method 2: Export cookie.txt
+1. Use your browser's cookie export extension.
+2. Export cookies for music.163.com.
+3. Click Import Cookie File here.
+
+Notes
+- Only your own logged-in cookie should be used.
+- After import, click Check Cookie first.
+"@
+    [System.Windows.Forms.MessageBox]::Show($guide, "How To Get MUSIC_U", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information) | Out-Null
+    Append-Log "Opened MUSIC_U guide."
 })
 
 $btnImportClipboard.Add_Click({

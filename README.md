@@ -44,6 +44,8 @@ Release 下载：
    - 点击 `Check Cookie`
    - 点击 `Start Download`
 
+不会找 `MUSIC_U` 的话，GUI 里现在有 `How To Get Cookie` 按钮，会直接弹出步骤。
+
 ## Windows GUI
 
 首次使用和日常使用都可以直接双击：
@@ -57,6 +59,7 @@ setup_netease_batch_windows.bat
 - 手动粘贴 `MUSIC_U`
 - 从剪贴板导入 `MUSIC_U` 或整段 `Cookie:` 文本
 - 导入用户自己导出的 `cookie.txt`
+- 内置 `How To Get Cookie` 按钮，直接显示获取步骤
 - 一键校验 Cookie
 - 一键开始下载
 - 打开输出目录
@@ -119,6 +122,13 @@ go run ./cmd/netease-batch \
 - 导入用户自己导出的 `cookie.txt`
 
 不提供对本机浏览器 Cookie 库的直接抓取。
+
+## 封面说明
+
+- 对 `mp3`、`flac`、`m4a`、`mp4`，程序会尝试把封面直接写进音频标签
+- 同时仍会额外导出 `covers/` 下的图片文件，目的是保留源数据，便于后续导库或二次处理
+- 正常播放器读取时，通常不需要再单独依赖外部图片文件
+- 如果格式不支持，或者标签写入失败，音频外的封面文件仍然会保留
 
 ## 文档
 
