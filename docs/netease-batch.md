@@ -38,6 +38,7 @@ setup_netease_batch_windows.bat
 
 它会自动：
 
+- 打开一个图形界面窗口，用户直接填表，不需要命令行输入
 - 构建 `netease-batch.exe`
 - 创建 `config.ini`
 - 打开网易云登录页
@@ -51,6 +52,18 @@ setup_netease_batch_windows.bat
 ```bat
 download_netease_playlist.bat "https://music.163.com/#/playlist?id=19723756" "D:\Music"
 ```
+
+如果你想继续用图形界面，也可以每次都直接双击：
+
+```bat
+setup_netease_batch_windows.bat
+```
+
+界面里直接点：
+
+- `Open NetEase`
+- `Check Cookie`
+- `Start Download`
 
 默认会输出到：
 
@@ -92,3 +105,4 @@ go run ./cmd/netease-batch \
 - 每首歌旁边的 `*.json` 额外保留源数据，便于后续导库或二次处理
 - 如果文件已存在，默认跳过，不会重复下载
 - Windows 首次使用建议直接运行 `setup_netease_batch_windows.bat`
+- 现在的 Windows 向导是 GUI 方式，适合“下载后双击即填表使用”

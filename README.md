@@ -321,6 +321,8 @@ setup_netease_batch_windows.bat
 download_netease_playlist.bat "https://music.163.com/#/playlist?id=19723756" "D:\Music"
 ```
 
+其中 `setup_netease_batch_windows.bat` 会打开图形界面，用户直接填 `MUSIC_U`、歌单链接和输出目录，不需要手打命令。
+
 详细说明见 `docs/netease-batch.md`。
 
 ## 开发
