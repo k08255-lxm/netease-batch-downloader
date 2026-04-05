@@ -1,6 +1,8 @@
 # 网易云歌单批量下载
 
-这个仓库新增了一个独立命令：
+这是一个独立的网易云批量下载项目，不再面向 Telegram Bot 使用场景。
+
+核心命令：
 
 ```bash
 go build -o netease-batch ./cmd/netease-batch
@@ -42,7 +44,9 @@ setup_netease_batch_windows.bat
 - 构建 `netease-batch.exe`
 - 创建 `config.ini`
 - 打开网易云登录页
-- 引导你去复制 `MUSIC_U`
+- 支持粘贴 `MUSIC_U`
+- 支持粘贴整段 `Cookie:` 文本并自动提取 `MUSIC_U`
+- 支持导入用户自己导出的 `cookie.txt`
 - 自动写回 `[plugins.netease] music_u`
 - 立即校验 Cookie 是否可用
 - 可选直接开始第一次歌单下载
@@ -62,6 +66,8 @@ setup_netease_batch_windows.bat
 界面里直接点：
 
 - `Open NetEase`
+- `Import Clipboard`
+- `Import Cookie File`
 - `Check Cookie`
 - `Start Download`
 
@@ -106,3 +112,4 @@ go run ./cmd/netease-batch \
 - 如果文件已存在，默认跳过，不会重复下载
 - Windows 首次使用建议直接运行 `setup_netease_batch_windows.bat`
 - 现在的 Windows 向导是 GUI 方式，适合“下载后双击即填表使用”
+- GUI 不会直接扫描本机浏览器 Cookie 数据库；如果你不想手动找单个值，可以直接导入你自己导出的 Cookie 文本或 `cookie.txt`

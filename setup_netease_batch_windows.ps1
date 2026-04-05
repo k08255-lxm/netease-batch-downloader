@@ -64,6 +64,51 @@ function Set-NeteaseMusicU {
     Set-Content -LiteralPath $ConfigPath -Value $content -Encoding UTF8
 }
 
+function Extract-MusicU {
+    param([string]$Text)
+
+    if ([string]::IsNullOrWhiteSpace($Text)) {
+        return ""
+    }
+
+    $trimmed = $Text.Trim()
+
+    if ($trimmed -match '(^|[;\s])MUSIC_U=([^;\r\n]+)') {
+        return $Matches[2].Trim()
+    }
+
+    if ($trimmed -match '^\s*MUSIC_U\s*=\s*(.+?)\s*$') {
+        return $Matches[1].Trim()
+    }
+
+    if ($trimmed -match '^\s*Cookie\s*:\s*(.+)$') {
+        $cookieText = $Matches[1].Trim()
+        if ($cookieText -match '(^|[;\s])MUSIC_U=([^;\r\n]+)') {
+            return $Matches[2].Trim()
+        }
+    }
+
+    foreach ($line in ($trimmed -split "`r?`n")) {
+        $cookieLine = $line.Trim()
+        if ([string]::IsNullOrWhiteSpace($cookieLine)) {
+            continue
+        }
+        if ($cookieLine.StartsWith("#")) {
+            continue
+        }
+        $parts = $cookieLine -split "`t"
+        if ($parts.Length -ge 7 -and $parts[5] -eq "MUSIC_U") {
+            return $parts[6].Trim()
+        }
+    }
+
+    if ($trimmed -notmatch '[=;\s]' -and $trimmed.Length -ge 20) {
+        return $trimmed
+    }
+
+    return ""
+}
+
 function Quote-Argument {
     param([string]$Value)
 
@@ -132,6 +177,12 @@ $btnOpenSite.Size = New-Object System.Drawing.Size(130, 30)
 $btnOpenSite.Text = "Open NetEase"
 $form.Controls.Add($btnOpenSite)
 
+$btnImportClipboard = New-Object System.Windows.Forms.Button
+$btnImportClipboard.Location = New-Object System.Drawing.Point(710, 126)
+$btnImportClipboard.Size = New-Object System.Drawing.Size(130, 30)
+$btnImportClipboard.Text = "Import Clipboard"
+$form.Controls.Add($btnImportClipboard)
+
 $chkShowCookie = New-Object System.Windows.Forms.CheckBox
 $chkShowCookie.Location = New-Object System.Drawing.Point(140, 124)
 $chkShowCookie.Size = New-Object System.Drawing.Size(100, 24)
@@ -145,43 +196,49 @@ $lblCookieHint.Text = "Browser: F12 -> Application/Storage -> Cookies -> https:/
 $form.Controls.Add($lblCookieHint)
 
 $lblURL = New-Object System.Windows.Forms.Label
-$lblURL.Location = New-Object System.Drawing.Point(20, 164)
+$lblURL.Location = New-Object System.Drawing.Point(20, 170)
 $lblURL.Size = New-Object System.Drawing.Size(120, 24)
 $lblURL.Text = "Playlist URL"
 $form.Controls.Add($lblURL)
 
 $txtURL = New-Object System.Windows.Forms.TextBox
-$txtURL.Location = New-Object System.Drawing.Point(140, 162)
+$txtURL.Location = New-Object System.Drawing.Point(140, 168)
 $txtURL.Size = New-Object System.Drawing.Size(700, 26)
 $txtURL.Text = "https://music.163.com/#/playlist?id="
 $form.Controls.Add($txtURL)
 
 $lblOutput = New-Object System.Windows.Forms.Label
-$lblOutput.Location = New-Object System.Drawing.Point(20, 204)
+$lblOutput.Location = New-Object System.Drawing.Point(20, 210)
 $lblOutput.Size = New-Object System.Drawing.Size(120, 24)
 $lblOutput.Text = "Output Folder"
 $form.Controls.Add($lblOutput)
 
 $txtOutput = New-Object System.Windows.Forms.TextBox
-$txtOutput.Location = New-Object System.Drawing.Point(140, 202)
+$txtOutput.Location = New-Object System.Drawing.Point(140, 208)
 $txtOutput.Size = New-Object System.Drawing.Size(560, 26)
 $txtOutput.Text = $downloadDir
 $form.Controls.Add($txtOutput)
 
 $btnBrowse = New-Object System.Windows.Forms.Button
-$btnBrowse.Location = New-Object System.Drawing.Point(710, 200)
+$btnBrowse.Location = New-Object System.Drawing.Point(710, 206)
 $btnBrowse.Size = New-Object System.Drawing.Size(130, 30)
 $btnBrowse.Text = "Browse"
 $form.Controls.Add($btnBrowse)
 
+$btnImportCookieFile = New-Object System.Windows.Forms.Button
+$btnImportCookieFile.Location = New-Object System.Drawing.Point(570, 246)
+$btnImportCookieFile.Size = New-Object System.Drawing.Size(140, 30)
+$btnImportCookieFile.Text = "Import Cookie File"
+$form.Controls.Add($btnImportCookieFile)
+
 $lblQuality = New-Object System.Windows.Forms.Label
-$lblQuality.Location = New-Object System.Drawing.Point(20, 244)
+$lblQuality.Location = New-Object System.Drawing.Point(20, 250)
 $lblQuality.Size = New-Object System.Drawing.Size(120, 24)
 $lblQuality.Text = "Quality"
 $form.Controls.Add($lblQuality)
 
 $cmbQuality = New-Object System.Windows.Forms.ComboBox
-$cmbQuality.Location = New-Object System.Drawing.Point(140, 242)
+$cmbQuality.Location = New-Object System.Drawing.Point(140, 248)
 $cmbQuality.Size = New-Object System.Drawing.Size(160, 26)
 $cmbQuality.DropDownStyle = "DropDownList"
 [void]$cmbQuality.Items.AddRange(@("standard", "high", "lossless", "hires"))
@@ -189,13 +246,13 @@ $cmbQuality.SelectedItem = "lossless"
 $form.Controls.Add($cmbQuality)
 
 $lblConcurrency = New-Object System.Windows.Forms.Label
-$lblConcurrency.Location = New-Object System.Drawing.Point(320, 244)
+$lblConcurrency.Location = New-Object System.Drawing.Point(320, 250)
 $lblConcurrency.Size = New-Object System.Drawing.Size(120, 24)
 $lblConcurrency.Text = "Concurrency"
 $form.Controls.Add($lblConcurrency)
 
 $cmbConcurrency = New-Object System.Windows.Forms.ComboBox
-$cmbConcurrency.Location = New-Object System.Drawing.Point(430, 242)
+$cmbConcurrency.Location = New-Object System.Drawing.Point(430, 248)
 $cmbConcurrency.Size = New-Object System.Drawing.Size(100, 26)
 $cmbConcurrency.DropDownStyle = "DropDownList"
 [void]$cmbConcurrency.Items.AddRange(@("1", "2", "3", "4", "5", "6", "8"))
@@ -203,65 +260,65 @@ $cmbConcurrency.SelectedItem = "4"
 $form.Controls.Add($cmbConcurrency)
 
 $chkLyrics = New-Object System.Windows.Forms.CheckBox
-$chkLyrics.Location = New-Object System.Drawing.Point(560, 242)
+$chkLyrics.Location = New-Object System.Drawing.Point(720, 248)
 $chkLyrics.Size = New-Object System.Drawing.Size(90, 24)
 $chkLyrics.Text = "Lyrics"
 $chkLyrics.Checked = $true
 $form.Controls.Add($chkLyrics)
 
 $chkCovers = New-Object System.Windows.Forms.CheckBox
-$chkCovers.Location = New-Object System.Drawing.Point(650, 242)
+$chkCovers.Location = New-Object System.Drawing.Point(720, 270)
 $chkCovers.Size = New-Object System.Drawing.Size(90, 24)
 $chkCovers.Text = "Cover"
 $chkCovers.Checked = $true
 $form.Controls.Add($chkCovers)
 
 $chkOverwrite = New-Object System.Windows.Forms.CheckBox
-$chkOverwrite.Location = New-Object System.Drawing.Point(740, 242)
+$chkOverwrite.Location = New-Object System.Drawing.Point(720, 292)
 $chkOverwrite.Size = New-Object System.Drawing.Size(100, 24)
 $chkOverwrite.Text = "Overwrite"
 $chkOverwrite.Checked = $false
 $form.Controls.Add($chkOverwrite)
 
 $btnSave = New-Object System.Windows.Forms.Button
-$btnSave.Location = New-Object System.Drawing.Point(20, 288)
+$btnSave.Location = New-Object System.Drawing.Point(20, 300)
 $btnSave.Size = New-Object System.Drawing.Size(120, 34)
 $btnSave.Text = "Save Cookie"
 $form.Controls.Add($btnSave)
 
 $btnCheck = New-Object System.Windows.Forms.Button
-$btnCheck.Location = New-Object System.Drawing.Point(150, 288)
+$btnCheck.Location = New-Object System.Drawing.Point(150, 300)
 $btnCheck.Size = New-Object System.Drawing.Size(120, 34)
 $btnCheck.Text = "Check Cookie"
 $form.Controls.Add($btnCheck)
 
 $btnStart = New-Object System.Windows.Forms.Button
-$btnStart.Location = New-Object System.Drawing.Point(280, 288)
+$btnStart.Location = New-Object System.Drawing.Point(280, 300)
 $btnStart.Size = New-Object System.Drawing.Size(140, 34)
 $btnStart.Text = "Start Download"
 $form.Controls.Add($btnStart)
 
 $btnOpenOutput = New-Object System.Windows.Forms.Button
-$btnOpenOutput.Location = New-Object System.Drawing.Point(430, 288)
+$btnOpenOutput.Location = New-Object System.Drawing.Point(430, 300)
 $btnOpenOutput.Size = New-Object System.Drawing.Size(140, 34)
 $btnOpenOutput.Text = "Open Output"
 $form.Controls.Add($btnOpenOutput)
 
 $btnOpenConfig = New-Object System.Windows.Forms.Button
-$btnOpenConfig.Location = New-Object System.Drawing.Point(580, 288)
+$btnOpenConfig.Location = New-Object System.Drawing.Point(580, 300)
 $btnOpenConfig.Size = New-Object System.Drawing.Size(120, 34)
 $btnOpenConfig.Text = "Open Config"
 $form.Controls.Add($btnOpenConfig)
 
 $btnBuild = New-Object System.Windows.Forms.Button
-$btnBuild.Location = New-Object System.Drawing.Point(710, 288)
+$btnBuild.Location = New-Object System.Drawing.Point(710, 336)
 $btnBuild.Size = New-Object System.Drawing.Size(130, 34)
 $btnBuild.Text = "Build EXE"
 $form.Controls.Add($btnBuild)
 
 $txtLog = New-Object System.Windows.Forms.TextBox
-$txtLog.Location = New-Object System.Drawing.Point(20, 340)
-$txtLog.Size = New-Object System.Drawing.Size(820, 300)
+$txtLog.Location = New-Object System.Drawing.Point(20, 382)
+$txtLog.Size = New-Object System.Drawing.Size(820, 258)
 $txtLog.Multiline = $true
 $txtLog.ReadOnly = $true
 $txtLog.ScrollBars = "Vertical"
@@ -310,6 +367,8 @@ function Set-Busy {
     $btnBrowse.Enabled = -not $Value
     $btnOpenSite.Enabled = -not $Value
     $btnBuild.Enabled = -not $Value
+    $btnImportClipboard.Enabled = -not $Value
+    $btnImportCookieFile.Enabled = -not $Value
 }
 
 function Save-ConfigFromUI {
@@ -419,6 +478,25 @@ $btnOpenSite.Add_Click({
     Append-Log "Opened https://music.163.com"
 })
 
+$btnImportClipboard.Add_Click({
+    try {
+        $text = [System.Windows.Forms.Clipboard]::GetText()
+    }
+    catch {
+        [System.Windows.Forms.MessageBox]::Show("Could not read clipboard.", "Clipboard Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error) | Out-Null
+        return
+    }
+
+    $musicU = Extract-MusicU -Text $text
+    if ([string]::IsNullOrWhiteSpace($musicU)) {
+        [System.Windows.Forms.MessageBox]::Show("Clipboard does not contain MUSIC_U or Cookie text.", "Import Failed", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Warning) | Out-Null
+        return
+    }
+
+    $txtMusicU.Text = $musicU
+    Append-Log "Imported MUSIC_U from clipboard."
+})
+
 $chkShowCookie.Add_CheckedChanged({
     $txtMusicU.UseSystemPasswordChar = -not $chkShowCookie.Checked
 })
@@ -430,6 +508,32 @@ $btnBrowse.Add_Click({
     if ($folderDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
         $txtOutput.Text = $folderDialog.SelectedPath
     }
+})
+
+$btnImportCookieFile.Add_Click({
+    $dialog = New-Object System.Windows.Forms.OpenFileDialog
+    $dialog.Title = "Select cookie.txt or exported cookie file"
+    $dialog.Filter = "Cookie Files|*.txt;*.cookie;*.cookies|All Files|*.*"
+    if ($dialog.ShowDialog() -ne [System.Windows.Forms.DialogResult]::OK) {
+        return
+    }
+
+    try {
+        $text = Get-Content -LiteralPath $dialog.FileName -Raw
+    }
+    catch {
+        [System.Windows.Forms.MessageBox]::Show("Failed to read selected file.", "Read Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error) | Out-Null
+        return
+    }
+
+    $musicU = Extract-MusicU -Text $text
+    if ([string]::IsNullOrWhiteSpace($musicU)) {
+        [System.Windows.Forms.MessageBox]::Show("The selected file does not contain MUSIC_U.", "Import Failed", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Warning) | Out-Null
+        return
+    }
+
+    $txtMusicU.Text = $musicU
+    Append-Log "Imported MUSIC_U from file: $($dialog.FileName)"
 })
 
 $btnSave.Add_Click({
@@ -519,7 +623,8 @@ $btnBuild.Add_Click({
 })
 
 Append-Log "GUI ready."
-Append-Log "Tip: click Open NetEase, copy MUSIC_U, click Check Cookie, then Start Download."
+Append-Log "Tip: paste MUSIC_U, import from clipboard, or import a cookie.txt file."
+Append-Log "Then click Check Cookie and Start Download."
 Set-Status "Ready"
 
 [void]$form.ShowDialog()
