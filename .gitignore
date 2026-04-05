@@ -39,6 +39,7 @@ log/
 # Cache
 cache/
 tmp/
+/dist/
 
 # Node.js
 node_modules/
