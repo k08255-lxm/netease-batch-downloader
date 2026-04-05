@@ -30,18 +30,25 @@ go build -o netease-batch ./cmd/netease-batch
 ## Windows 快速使用
 
 1. 安装 Go 1.26+
-2. 把 `config_example.ini` 复制为 `config.ini`
-3. 填写：
-
-```ini
-[plugins.netease]
-music_u = YOUR_MUSIC_U_COOKIE
-```
-
-4. 在仓库根目录执行：
+2. 在仓库根目录执行配置向导：
 
 ```bat
-build_netease_batch_windows.bat
+setup_netease_batch_windows.bat
+```
+
+它会自动：
+
+- 构建 `netease-batch.exe`
+- 创建 `config.ini`
+- 打开网易云登录页
+- 引导你去复制 `MUSIC_U`
+- 自动写回 `[plugins.netease] music_u`
+- 立即校验 Cookie 是否可用
+- 可选直接开始第一次歌单下载
+
+3. 之后日常下载：
+
+```bat
 download_netease_playlist.bat "https://music.163.com/#/playlist?id=19723756" "D:\Music"
 ```
 
@@ -77,9 +84,11 @@ go run ./cmd/netease-batch \
 - `-lyrics=false`：不导出歌词文件
 - `-covers=false`：不导出封面文件
 - `-overwrite=true`：覆盖已存在文件
+- `-check`：只校验 `MUSIC_U` 是否可用，不下载
 
 ## 说明
 
 - `playlist.json` 记录整个歌单下载结果
 - 每首歌旁边的 `*.json` 额外保留源数据，便于后续导库或二次处理
 - 如果文件已存在，默认跳过，不会重复下载
+- Windows 首次使用建议直接运行 `setup_netease_batch_windows.bat`

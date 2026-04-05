@@ -317,7 +317,7 @@ go build -o netease-batch ./cmd/netease-batch
 Windows 可直接使用：
 
 ```bat
-build_netease_batch_windows.bat
+setup_netease_batch_windows.bat
 download_netease_playlist.bat "https://music.163.com/#/playlist?id=19723756" "D:\Music"
 ```
 

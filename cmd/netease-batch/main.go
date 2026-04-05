@@ -117,6 +117,7 @@ func main() {
 		lyrics      bool
 		covers      bool
 		overwrite   bool
+		checkOnly   bool
 	)
 
 	flag.StringVar(&configPath, "config", "config.ini", "配置文件路径，会读取 [plugins.netease] music_u")
@@ -128,9 +129,10 @@ func main() {
 	flag.BoolVar(&lyrics, "lyrics", true, "导出歌词 sidecar，并尝试写入音频标签")
 	flag.BoolVar(&covers, "covers", true, "导出封面文件，并尝试写入音频标签")
 	flag.BoolVar(&overwrite, "overwrite", false, "覆盖已存在文件")
+	flag.BoolVar(&checkOnly, "check", false, "只校验网易云 cookie 是否可用于下载，不执行批量下载")
 	flag.Parse()
 
-	if strings.TrimSpace(rawURL) == "" {
+	if !checkOnly && strings.TrimSpace(rawURL) == "" {
 		fmt.Fprintln(os.Stderr, "缺少 -url 参数")
 		flag.Usage()
 		os.Exit(2)
@@ -163,6 +165,23 @@ func main() {
 
 	client := netease.New(cfg.MusicU, cfg.SpoofIP, nil)
 	plat := netease.NewPlatform(client, false)
+
+	if checkOnly {
+		checkCtx, checkCancel := context.WithTimeout(ctx, 30*time.Second)
+		defer checkCancel()
+		result, err := plat.CheckCookie(checkCtx)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "校验失败: %v\n", err)
+			os.Exit(1)
+		}
+		if !result.OK {
+			fmt.Fprintf(os.Stderr, "Cookie 不可用: %s\n", strings.TrimSpace(result.Message))
+			os.Exit(1)
+		}
+		fmt.Printf("Cookie 可用: %s\n", strings.TrimSpace(result.Message))
+		return
+	}
+
 	playlistID, ok := plat.MatchPlaylistURL(rawURL)
 	if !ok {
 		fmt.Fprintln(os.Stderr, "URL 不是可识别的网易云歌单或专辑链接")

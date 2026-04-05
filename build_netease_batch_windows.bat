@@ -15,3 +15,6 @@ if errorlevel 1 (
 )
 
 echo Built: %cd%\netease-batch.exe
+echo.
+echo First-time setup:
+echo   setup_netease_batch_windows.bat
