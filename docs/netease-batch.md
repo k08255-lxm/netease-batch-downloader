@@ -114,10 +114,6 @@ go run ./cmd/netease-batch \
 这个仓库的 GitHub Actions 会直接构建并发布 `netease-batch`：
 
 - `netease-batch-windows-amd64-vX.Y.Z.zip`
-- `netease-batch-linux-amd64-vX.Y.Z.tar.gz`
-- `netease-batch-linux-arm64-vX.Y.Z.tar.gz`
-- `netease-batch-darwin-amd64-vX.Y.Z.tar.gz`
-- `netease-batch-darwin-arm64-vX.Y.Z.tar.gz`
 
 打 tag 后会自动创建或更新 GitHub Release。
 
@@ -128,7 +124,7 @@ go run ./cmd/netease-batch \
 - `playlist.json` 记录整个歌单下载结果
 - 每首歌旁边的 `*.json` 额外保留源数据，便于后续导库或二次处理
 - 如果文件已存在，默认跳过，不会重复下载
-- Windows 首次使用建议直接运行 `setup_netease_batch_windows.bat`
+- Windows 首次使用建议直接运行 `setup_netease_batch_windows.exe`
 - 现在的 Windows 向导是 GUI 方式，适合“下载后双击即填表使用”
 - 如果没有手动配置 `cookie` / `music_u`，Windows 下程序会自动尝试从已登录浏览器读取 `music.163.com` Cookie
 - 对 `mp3`、`flac`、`m4a`、`mp4`，封面会尝试直接写进音频标签；外部 `covers/` 图片仍会保留作为源数据备份

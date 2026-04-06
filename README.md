@@ -47,7 +47,7 @@ Release 下载：
 
 1. 去 Release 下载最新的 `netease-batch-windows-amd64-vX.Y.Z.zip`
 2. 解压
-3. 双击 `setup_netease_batch_windows.bat`
+3. 双击 `setup_netease_batch_windows.exe`
 4. 在窗口里：
    - 直接粘贴 `MUSIC_U`，或留空让程序自动从浏览器读取
    - 粘贴歌单链接
@@ -61,9 +61,11 @@ Windows 下如果配置里没有手动填写 `cookie` / `music_u`，程序会自
 
 首次使用和日常使用都可以直接双击：
 
-```bat
-setup_netease_batch_windows.bat
+```text
+setup_netease_batch_windows.exe
 ```
+
+如果你的压缩包里暂时还没有这个 `exe`，也可以先用 `setup_netease_batch_windows.bat`，它会优先尝试拉起同名 `exe`，没有时再回退到 `ps1`。
 
 图形界面支持：
 
@@ -103,10 +105,8 @@ GitHub Release 现在只发布 `netease-batch` 相关产物。
 当前发布命名：
 
 - Windows: `netease-batch-windows-amd64-vX.Y.Z.zip`
-- Linux: `netease-batch-linux-amd64-vX.Y.Z.tar.gz`
-- Linux ARM64: `netease-batch-linux-arm64-vX.Y.Z.tar.gz`
-- macOS: `netease-batch-darwin-amd64-vX.Y.Z.tar.gz`
-- macOS ARM64: `netease-batch-darwin-arm64-vX.Y.Z.tar.gz`
+
+Release 现在只附带 Windows 压缩包，不再附带 `sha256` 文件和非 Windows 构建产物。
 
 ## 参数
 

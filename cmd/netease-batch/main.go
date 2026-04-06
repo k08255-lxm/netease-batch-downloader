@@ -298,7 +298,11 @@ func main() {
 
 	printf("开始下载: %s (%d 首)\n", pl.Title, len(pl.Tracks))
 	printf("输出目录: %s\n", rootDir)
-	printf("音质: %s, 并发: %d\n", quality.String(), concurrency)
+	if cfg.EnableMultipart {
+		printf("音质: %s, 任务并发: %d, 单文件分片并发: %d\n", quality.String(), concurrency, cfg.MultipartConcurrency)
+	} else {
+		printf("音质: %s, 任务并发: %d, 单文件分片下载: 关闭\n", quality.String(), concurrency)
+	}
 
 	jobs := make(chan job)
 	var wg sync.WaitGroup

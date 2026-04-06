@@ -263,13 +263,13 @@ $cmbQuality.Location = New-Object System.Drawing.Point(140, 248)
 $cmbQuality.Size = New-Object System.Drawing.Size(160, 26)
 $cmbQuality.DropDownStyle = "DropDownList"
 [void]$cmbQuality.Items.AddRange(@("标准", "较高", "无损", "Hi-Res"))
-$cmbQuality.SelectedItem = "无损"
+$cmbQuality.SelectedIndex = 2
 $form.Controls.Add($cmbQuality)
 
 $lblConcurrency = New-Object System.Windows.Forms.Label
 $lblConcurrency.Location = New-Object System.Drawing.Point(320, 250)
 $lblConcurrency.Size = New-Object System.Drawing.Size(120, 24)
-$lblConcurrency.Text = "并发数"
+$lblConcurrency.Text = "任务并发"
 $form.Controls.Add($lblConcurrency)
 
 $cmbConcurrency = New-Object System.Windows.Forms.ComboBox
@@ -277,7 +277,7 @@ $cmbConcurrency.Location = New-Object System.Drawing.Point(430, 248)
 $cmbConcurrency.Size = New-Object System.Drawing.Size(100, 26)
 $cmbConcurrency.DropDownStyle = "DropDownList"
 [void]$cmbConcurrency.Items.AddRange(@("1", "2", "3", "4", "5", "6", "8"))
-$cmbConcurrency.SelectedItem = "4"
+$cmbConcurrency.SelectedIndex = 3
 $form.Controls.Add($cmbConcurrency)
 
 $chkLyrics = New-Object System.Windows.Forms.CheckBox
@@ -416,6 +416,19 @@ function Resolve-QualityValue {
     }
 }
 
+function Get-SelectedConcurrency {
+    $value = [string]$cmbConcurrency.SelectedItem
+    if ([string]::IsNullOrWhiteSpace($value)) {
+        $value = [string]$cmbConcurrency.Text
+    }
+    $value = $value.Trim()
+    if ([string]::IsNullOrWhiteSpace($value)) {
+        $cmbConcurrency.SelectedIndex = 3
+        return "4"
+    }
+    return $value
+}
+
 function Ensure-Exe {
     if (Test-Path -LiteralPath $exePath) {
         return $true
@@ -439,50 +452,66 @@ function Invoke-LoggedProcess {
         [string]$FailureText
     )
 
-    $stdoutFile = [System.IO.Path]::GetTempFileName()
-    $stderrFile = [System.IO.Path]::GetTempFileName()
     $argText = Join-Arguments -Items $Arguments
+    $queue = New-Object 'System.Collections.Concurrent.ConcurrentQueue[string]'
+    $process = $null
+    $stdoutHandler = $null
+    $stderrHandler = $null
 
     try {
         Set-Busy $true
         Set-Status "运行中..."
         Append-Log "> $FilePath $argText"
 
-        $process = Start-Process -FilePath $FilePath -ArgumentList $argText -WorkingDirectory $repoRoot -RedirectStandardOutput $stdoutFile -RedirectStandardError $stderrFile -PassThru -WindowStyle Hidden
+        $startInfo = New-Object System.Diagnostics.ProcessStartInfo
+        $startInfo.FileName = $FilePath
+        $startInfo.Arguments = $argText
+        $startInfo.WorkingDirectory = $repoRoot
+        $startInfo.UseShellExecute = $false
+        $startInfo.CreateNoWindow = $true
+        $startInfo.RedirectStandardOutput = $true
+        $startInfo.RedirectStandardError = $true
 
-        $lastStdoutLength = 0
-        $lastStderrLength = 0
+        $process = New-Object System.Diagnostics.Process
+        $process.StartInfo = $startInfo
+        $process.EnableRaisingEvents = $true
+
+        $stdoutHandler = [System.Diagnostics.DataReceivedEventHandler]{
+            param($sender, $eventArgs)
+            if (-not [string]::IsNullOrWhiteSpace($eventArgs.Data)) {
+                $null = $queue.Enqueue($eventArgs.Data)
+            }
+        }
+        $stderrHandler = [System.Diagnostics.DataReceivedEventHandler]{
+            param($sender, $eventArgs)
+            if (-not [string]::IsNullOrWhiteSpace($eventArgs.Data)) {
+                $null = $queue.Enqueue($eventArgs.Data)
+            }
+        }
+
+        $process.add_OutputDataReceived($stdoutHandler)
+        $process.add_ErrorDataReceived($stderrHandler)
+
+        if (-not $process.Start()) {
+            throw "无法启动进程：$FilePath"
+        }
+
+        $process.BeginOutputReadLine()
+        $process.BeginErrorReadLine()
 
         while (-not $process.HasExited) {
-            if (Test-Path -LiteralPath $stdoutFile) {
-                $stdoutText = [System.IO.File]::ReadAllText($stdoutFile)
-                if ($stdoutText.Length -gt $lastStdoutLength) {
-                    Append-Log $stdoutText.Substring($lastStdoutLength)
-                    $lastStdoutLength = $stdoutText.Length
-                }
-            }
-            if (Test-Path -LiteralPath $stderrFile) {
-                $stderrText = [System.IO.File]::ReadAllText($stderrFile)
-                if ($stderrText.Length -gt $lastStderrLength) {
-                    Append-Log $stderrText.Substring($lastStderrLength)
-                    $lastStderrLength = $stderrText.Length
-                }
+            $line = $null
+            while ($queue.TryDequeue([ref]$line)) {
+                Append-Log $line
             }
             [System.Windows.Forms.Application]::DoEvents()
             Start-Sleep -Milliseconds 150
         }
 
-        if (Test-Path -LiteralPath $stdoutFile) {
-            $stdoutText = [System.IO.File]::ReadAllText($stdoutFile)
-            if ($stdoutText.Length -gt $lastStdoutLength) {
-                Append-Log $stdoutText.Substring($lastStdoutLength)
-            }
-        }
-        if (Test-Path -LiteralPath $stderrFile) {
-            $stderrText = [System.IO.File]::ReadAllText($stderrFile)
-            if ($stderrText.Length -gt $lastStderrLength) {
-                Append-Log $stderrText.Substring($lastStderrLength)
-            }
+        $process.WaitForExit()
+        $line = $null
+        while ($queue.TryDequeue([ref]$line)) {
+            Append-Log $line
         }
 
         if ($process.ExitCode -eq 0) {
@@ -501,7 +530,33 @@ function Invoke-LoggedProcess {
     }
     finally {
         Set-Busy $false
-        Remove-Item -LiteralPath $stdoutFile, $stderrFile -ErrorAction SilentlyContinue
+        if ($null -ne $process) {
+            try {
+                $process.CancelOutputRead()
+            }
+            catch {
+            }
+            try {
+                $process.CancelErrorRead()
+            }
+            catch {
+            }
+            if ($null -ne $stdoutHandler) {
+                try {
+                    $process.remove_OutputDataReceived($stdoutHandler)
+                }
+                catch {
+                }
+            }
+            if ($null -ne $stderrHandler) {
+                try {
+                    $process.remove_ErrorDataReceived($stderrHandler)
+                }
+                catch {
+                }
+            }
+            $process.Dispose()
+        }
     }
 }
 
@@ -648,8 +703,9 @@ $btnStart.Add_Click({
         "-url", $playlistURL,
         "-out", $outputPath,
         "-quality", (Resolve-QualityValue),
-        "-concurrency", [string]$cmbConcurrency.SelectedItem
+        "-concurrency", (Get-SelectedConcurrency)
     )
+    Append-Log ("开始下载: 音质={0}, 任务并发={1}" -f (Resolve-QualityValue), (Get-SelectedConcurrency))
     if (-not $chkLyrics.Checked) {
         $args += "-lyrics=false"
     }
