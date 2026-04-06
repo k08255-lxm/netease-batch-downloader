@@ -36,6 +36,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     needs: [test]
+    outputs:
+      release_tag: ${{ steps.release_meta.outputs.release_tag }}
+      release_name: ${{ steps.release_meta.outputs.release_name }}
+      package_suffix: ${{ steps.release_meta.outputs.package_suffix }}
+      is_prerelease: ${{ steps.release_meta.outputs.is_prerelease }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -57,6 +62,28 @@ jobs:
           echo "commit=$COMMIT" >> "$GITHUB_OUTPUT"
           echo "build_time=$BUILD_TIME" >> "$GITHUB_OUTPUT"
 
+      - name: Derive release metadata
+        id: release_meta
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            TAG_NAME="${GITHUB_REF#refs/tags/}"
+            echo "release_tag=$TAG_NAME" >> "$GITHUB_OUTPUT"
+            echo "release_name=$TAG_NAME" >> "$GITHUB_OUTPUT"
+            echo "package_suffix=$TAG_NAME" >> "$GITHUB_OUTPUT"
+            echo "is_prerelease=false" >> "$GITHUB_OUTPUT"
+          elif [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
+            echo "release_tag=latest" >> "$GITHUB_OUTPUT"
+            echo "release_name=latest" >> "$GITHUB_OUTPUT"
+            echo "package_suffix=latest" >> "$GITHUB_OUTPUT"
+            echo "is_prerelease=false" >> "$GITHUB_OUTPUT"
+          else
+            SHORT_SHA="$(git rev-parse --short=7 HEAD)"
+            echo "release_tag=" >> "$GITHUB_OUTPUT"
+            echo "release_name=" >> "$GITHUB_OUTPUT"
+            echo "package_suffix=pr-$SHORT_SHA" >> "$GITHUB_OUTPUT"
+            echo "is_prerelease=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Setup Go
         uses: actions/setup-go@v6
         with:
@@ -77,16 +104,12 @@ jobs:
           BUILD_VERSION: ${{ steps.build_meta.outputs.version }}
           BUILD_COMMIT: ${{ steps.build_meta.outputs.commit }}
           BUILD_TIME: ${{ steps.build_meta.outputs.build_time }}
+          PACKAGE_SUFFIX: ${{ steps.release_meta.outputs.package_suffix }}
           ARCHIVE_EXT: zip
           BINARY_NAME: netease-batch.exe
         shell: bash
         run: |
-          VERSION="$BUILD_VERSION"
-          case "$VERSION" in
-            v*) PACKAGE_VERSION="$VERSION" ;;
-            *) PACKAGE_VERSION="v$VERSION" ;;
-          esac
-          PACKAGE_NAME="netease-batch-${GOOS}-${GOARCH}-${PACKAGE_VERSION}"
+          PACKAGE_NAME="netease-batch-${GOOS}-${GOARCH}-${PACKAGE_SUFFIX}"
           PACKAGE_DIR="dist/$PACKAGE_NAME"
           ARCHIVE_PATH="dist/${PACKAGE_NAME}.${ARCHIVE_EXT}"
 
@@ -132,7 +155,7 @@ jobs:
             dist/*.zip
 
   release:
-    if: startsWith(github.ref, 'refs/tags/')
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
     needs: [build]
     runs-on: ubuntu-latest
     permissions:
@@ -151,23 +174,41 @@ jobs:
 
       - name: Generate release notes
         run: |
-          TAG_NAME=${GITHUB_REF#refs/tags/}
-          PREV_TAG=$(git describe --tags --abbrev=0 "$TAG_NAME"^ 2>/dev/null || true)
-          {
-            echo "## Changes"
-            if [ -n "$PREV_TAG" ]; then
+          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            TAG_NAME=${GITHUB_REF#refs/tags/}
+            PREV_TAG=$(git describe --tags --abbrev=0 "$TAG_NAME"^ 2>/dev/null || true)
+            {
+              echo "## Changes"
+              if [ -n "$PREV_TAG" ]; then
+                echo ""
+                echo "From $PREV_TAG to $TAG_NAME"
+                git log --pretty=format:"- %s (%an)" "$PREV_TAG".."$TAG_NAME"
+              else
+                echo ""
+                git log --pretty=format:"- %s (%an)" "$TAG_NAME"
+              fi
+            } > release-notes.md
+          else
+            {
+              echo "## Latest Main Build"
               echo ""
-              echo "From $PREV_TAG to $TAG_NAME"
-              git log --pretty=format:"- %s (%an)" "$PREV_TAG".."$TAG_NAME"
-            else
+              echo "- Branch: \`main\`"
+              echo "- Commit: \`${GITHUB_SHA}\`"
               echo ""
-              git log --pretty=format:"- %s (%an)" "$TAG_NAME"
-            fi
-          } > release-notes.md
+              echo "### Recent Changes"
+              git log --pretty=format:"- %s (%an)" -n 20 "${GITHUB_SHA}"
+            } > release-notes.md
+          fi
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ needs.build.outputs.release_tag }}
+          name: ${{ needs.build.outputs.release_name }}
+          prerelease: ${{ needs.build.outputs.is_prerelease }}
+          target_commitish: ${{ github.sha }}
+          append_body: false
+          overwrite_files: true
           body_path: release-notes.md
           files: |
             dist/*.zip

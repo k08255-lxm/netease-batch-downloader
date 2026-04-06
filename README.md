@@ -45,7 +45,7 @@ Release 下载：
 
 ## 最短使用流程
 
-1. 去 Release 下载最新的 `netease-batch-windows-amd64-vX.Y.Z.zip`
+1. 去 Release 下载最新的 `netease-batch-windows-amd64-latest.zip`
 2. 解压
 3. 双击 `setup_netease_batch_windows.exe`
 4. 在窗口里：
@@ -104,7 +104,10 @@ GitHub Release 现在只发布 `netease-batch` 相关产物。
 
 当前发布命名：
 
-- Windows: `netease-batch-windows-amd64-vX.Y.Z.zip`
+- 主分支滚动包：`netease-batch-windows-amd64-latest.zip`
+- 版本 tag 正式包：`netease-batch-windows-amd64-vX.Y.Z.zip`
+
+推送到 `main` 会自动更新滚动 `latest` Release；推送 `v*` tag 会自动创建或更新对应正式版 Release。
 
 Release 现在只附带 Windows 压缩包，不再附带 `sha256` 文件和非 Windows 构建产物。
 

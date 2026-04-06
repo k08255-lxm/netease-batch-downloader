@@ -113,9 +113,12 @@ go run ./cmd/netease-batch \
 
 这个仓库的 GitHub Actions 会直接构建并发布 `netease-batch`：
 
+- `netease-batch-windows-amd64-latest.zip`
 - `netease-batch-windows-amd64-vX.Y.Z.zip`
 
-打 tag 后会自动创建或更新 GitHub Release。
+推送到 `main` 后会自动更新滚动 `latest` GitHub Release。
+
+推送 `v*` tag 后会自动创建或更新对应正式版 GitHub Release。
 
 主分支每次提交也会自动跑完整测试，后续不需要再靠本地手工打包验证。
 

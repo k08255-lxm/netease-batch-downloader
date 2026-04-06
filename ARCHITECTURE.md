@@ -76,10 +76,9 @@ cmd/netease-batch/main.go
 
 GitHub Actions 只构建并发布 `netease-batch` 相关产物：
 
+- `netease-batch-windows-amd64-latest.zip`
 - `netease-batch-windows-amd64-vX.Y.Z.zip`
-- `netease-batch-linux-amd64-vX.Y.Z.tar.gz`
-- `netease-batch-linux-arm64-vX.Y.Z.tar.gz`
-- `netease-batch-darwin-amd64-vX.Y.Z.tar.gz`
-- `netease-batch-darwin-arm64-vX.Y.Z.tar.gz`
 
-推送 tag 后，GitHub 会自动测试、打包并更新 Release。
+推送到 `main` 后，GitHub 会自动测试、打包并更新滚动 `latest` Release。
+
+推送 `v*` tag 后，GitHub 会自动测试、打包并更新对应正式版 Release。
